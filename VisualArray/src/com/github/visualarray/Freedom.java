@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 
 import com.github.visualarray.gui.VisualArray;
 import com.github.visualarray.sort.ArrayConditions;
@@ -26,13 +27,13 @@ public class Freedom
 			e.printStackTrace();
 		}
 		
-		int[] x = ArrayConditions.COMPLETELY_RANDOM.build(80, 600);
+		int[] x = ArrayConditions.UNIQUELY_RANDOM.build(80, 600);
 		VisualArray va = new VisualArray(x, 4, 2);
 		addToAJFrame(va, "Visual Array Freedom").setVisible(true);
 		
 		va.setCompareDelay(20);
 		va.setSwapDelay(20);
-		test(va, SortingAlgorithms.HEAP_SORT);
+		test(va, SortingAlgorithms.COMB_SORT);
 		
 	}
 	
@@ -42,15 +43,17 @@ public class Freedom
 		JPanel panel = new JPanel();
 		panel.add(c);
 		
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		return frame;
 	}
 	
-	public static void test(final VisualArray va, final SortingAlgorithm algorithm)
+	public static void test(final VisualArray va,
+			final SortingAlgorithm algorithm)
 	{
+		
 		final Thread sorterThread = new Thread()
 		{
 			@Override
@@ -68,7 +71,7 @@ public class Freedom
 			public void run()
 			{
 				int delta = 0;
-				while(sorterThread.isAlive())
+				while(sorterThread.isAlive() && !va.isSorted())
 				{
 					va.step();
 					++delta;
@@ -96,6 +99,8 @@ public class Freedom
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		System.out.println(va.isSorted());
 	}
 	
 	public static void testAll(final VisualArray va)

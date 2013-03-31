@@ -4,8 +4,8 @@ public class NanoSleeper
 {
 	private static final long ONE_MILLIS = 1000000;
 	
-	private long shouldStopAt; 
-
+	private long shouldStopAt;
+	
 	private long nanosBehind;
 	
 	public NanoSleeper()
@@ -59,7 +59,7 @@ public class NanoSleeper
 		long currentNanos = System.nanoTime();
 		
 		long millisToSleep = (this.shouldStopAt - currentNanos) / ONE_MILLIS;
-
+		
 		long nanosBehind = this.nanosBehind;
 		if(nanosBehind > ONE_MILLIS / 2)
 		{
@@ -78,7 +78,7 @@ public class NanoSleeper
 		Thread.sleep(millisToSleep);
 		
 		long stopTime = System.nanoTime();
-		this.nanosBehind += (stopTime - shouldStopAt);
+		this.nanosBehind += (stopTime - this.shouldStopAt);
 		this.shouldStopAt = 0;
 	}
 }

@@ -10,9 +10,13 @@ public interface SortingArray<E>
 	
 	int compare(int index1, int index2);
 	
-	void markSorted(int index);
+	void markSortedIndex(int index);
 	
-	void unmarkSorted(int index);
+	void unmarkSortedIndex(int index);
+	
+	boolean isSorted();
+	
+	void markFinished();
 	
 	void reset();
 }

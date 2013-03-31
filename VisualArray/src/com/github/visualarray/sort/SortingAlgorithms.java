@@ -7,7 +7,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	BUBBLE_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			int i = sa.length();
 			
@@ -27,7 +27,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				}
 				while(i > changeIndex) // TODO
 				{
-					sa.markSorted(--i);
+					sa.markSortedIndex(--i);
 				}
 			}
 		}
@@ -38,7 +38,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		private final Random rand = new Random();
 		
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			quickSort(sa, 0, sa.length() - 1);
 		}
@@ -52,7 +52,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			
 			if(difference == 0)
 			{
-				sa.markSorted(upper);
+				sa.markSortedIndex(upper);
 				return;
 			}
 			
@@ -76,7 +76,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				i -= direction;
 			}
 			
-			sa.markSorted(pivot);
+			sa.markSortedIndex(pivot);
 			
 			quickSort(sa, lower, pivot - 1);
 			quickSort(sa, pivot + 1, upper);
@@ -86,10 +86,10 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	INSERTION_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			int length = sa.length();
-			sa.markSorted(0);
+			sa.markSortedIndex(0);
 			for(int i = 1; i < length; ++i)
 			{
 				int j = i;
@@ -106,7 +106,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					sa.swap(index1, index2);
 					--j;
 				}
-				sa.markSorted(j);
+				sa.markSortedIndex(j);
 			}
 		}
 	},
@@ -114,7 +114,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SELECTION_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			for(int i = sa.length() - 1; i >= 0; --i)
 			{
@@ -127,7 +127,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					}
 				}
 				sa.swap(maxIndex, i);
-				sa.markSorted(i);
+				sa.markSortedIndex(i);
 			}
 		}
 	},
@@ -135,7 +135,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COMB_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			combInsertionSort(sa, 1.35, 1);
 		}
@@ -186,7 +186,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	HEAP_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			int length = sa.length();
 			int start = (length - 2) / 2;
@@ -200,11 +200,11 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			while(end > 0)
 			{
 				sa.swap(0, end);
-				sa.markSorted(end);
+				sa.markSortedIndex(end);
 				--end;
 				heapSink(sa, 0, end);
 			}
-			sa.markSorted(0);
+			sa.markSortedIndex(0);
 		}
 		
 		private void heapSink(SortingArray<?> sa, int start, int end)
@@ -238,7 +238,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COCKTAIL_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			int first = 0;
 			int last = sa.length() - 1;
@@ -257,7 +257,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				}
 				while(last > shift) // TODO
 				{
-					sa.markSorted(last--);
+					sa.markSortedIndex(last--);
 				}
 				
 				shift = last;
@@ -273,7 +273,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				}
 				while(first <= shift) // TODO
 				{
-					sa.markSorted(first++);
+					sa.markSortedIndex(first++);
 				}
 			}
 		}
@@ -282,7 +282,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SHELL_SORT
 	{
 		@Override
-		public void sort(SortingArray<?> sa)
+		protected void doSort(SortingArray<?> sa)
 		{
 			int len = sa.length();
 			int gap = 1;
@@ -333,6 +333,15 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	{
 		this.name = name;
 	}
+	
+	protected abstract void doSort(SortingArray<?> sa);
+	
+	public final void sort(SortingArray<?> sa)
+	{
+		doSort(sa);
+		sa.markFinished();
+	}
+	
 	
 	@Override
 	public String toString()

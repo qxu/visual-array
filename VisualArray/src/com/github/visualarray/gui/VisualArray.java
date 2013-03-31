@@ -2,10 +2,10 @@ package com.github.visualarray.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.awt.Graphics2D;
 
 import javax.swing.JComponent;
 
@@ -19,8 +19,8 @@ public class VisualArray extends JComponent implements
 	private VASortingLine[] elements;
 	private int thickness;
 	private int padding;
-	private int modCount;
 	
+	private volatile int sortedIndexCount;
 	private int compareDelay;
 	private int swapDelay;
 	private volatile int stepWait;
@@ -55,33 +55,9 @@ public class VisualArray extends JComponent implements
 		this.elements = elements;
 		this.thickness = thickness;
 		this.padding = padding;
-		this.modCount = 0;
-	}
-	
-	public void step()
-	{
-		synchronized(this.stepLock)
-		{
-			if(this.stepWait < 0)
-			{
-				try
-				{
-					this.stepLock.wait();
-				}
-				catch(InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			--this.stepWait;
-			
-			if(this.stepWait < 0)
-			{
-				this.stepLock.notifyAll();
-			}
-		}
+		this.sortedIndexCount = 0;
+		
+		this.setFont(new Font("Arial", Font.PLAIN, 10));
 	}
 	
 	@Override
@@ -97,6 +73,14 @@ public class VisualArray extends JComponent implements
 			g.setColor(line.getColor());
 			g.fillRect(0, i * dy, line.length(), thickness);
 		}
+		
+		g.setColor(Color.BLACK);
+		
+		String debug = sortedIndexCount + "/" + length();
+		FontMetrics fm = getFontMetrics(getFont());
+		int strWidth = fm.stringWidth(debug);
+		int strHeight = fm.getHeight();
+		g.drawString(debug, getWidth() - strWidth, strHeight);
 	}
 	
 	public int getCompareDelay()
@@ -151,6 +135,21 @@ public class VisualArray extends JComponent implements
 		
 		this.padding = padding;
 	}
+
+	public boolean isSorted()
+	{
+		synchronized(this.stepLock)
+		{
+			return this.sortedIndexCount == length();
+		}
+	}
+
+	@Override
+	public void markFinished()
+	{
+		if(!isSorted())
+			throw new AssertionError("not fully sorted");
+	}
 	
 	@Override
 	public int length()
@@ -163,12 +162,44 @@ public class VisualArray extends JComponent implements
 	{
 		return this.elements[index];
 	}
-	
+
+	public void step()
+	{
+		synchronized(this.stepLock)
+		{
+			if(this.stepWait == 0)
+			{
+				if(isSorted())
+				{
+					System.out.println("detected");
+					return;
+				}
+				try
+				{
+					this.stepLock.wait();
+				}
+				catch(InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			--this.stepWait;
+			
+			if(this.stepWait <= 0)
+			{
+				this.stepLock.notifyAll();
+			}
+		}
+	}
+
 	private void waitSteps(int steps)
 	{
 		if(steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
-		
+		if(steps == 0)
+			return;
 		synchronized(this.stepLock)
 		{
 			if(this.stepWait > 0)
@@ -194,8 +225,6 @@ public class VisualArray extends JComponent implements
 	{
 		synchronized(this.stepLock)
 		{
-			++this.modCount;
-			
 			VASortingLine primary = get(index1);
 			VASortingLine secondary = get(index2);
 			
@@ -250,21 +279,38 @@ public class VisualArray extends JComponent implements
 	}
 	
 	@Override
-	public void markSorted(int index)
+	public void markSortedIndex(int index)
 	{
-		get(index).setColor(VAColors.getSorted());
+		synchronized(this.stepLock)
+		{
+			VASortingLine line = get(index);
+			Color sortedColor = VAColors.getSorted();
+			if(!line.getColor().equals(sortedColor))
+			{
+				line.setColor(sortedColor);
+				++sortedIndexCount;
+			}
+		}
 	}
 	
 	@Override
-	public void unmarkSorted(int index)
+	public void unmarkSortedIndex(int index)
 	{
-		get(index).setColor(VAColors.getUnSorted());
+		synchronized(this.stepLock)
+		{
+			VASortingLine line = get(index);
+			Color unsortedColor = VAColors.getUnSorted();
+			if(!line.getColor().equals(unsortedColor))
+			{
+				line.setColor(unsortedColor);
+				--sortedIndexCount;
+			}
+		}
 	}
 	
 	@Override
 	public void reset()
 	{
-		++this.modCount;
 		int[] values = this.initialValues;
 		int length = values.length;
 		this.elements = new VASortingLine[length];
@@ -275,45 +321,10 @@ public class VisualArray extends JComponent implements
 		}
 	}
 	
-	public Iterator<VASortingLine> iterator()
+	@Override
+	public String toString()
 	{
-		return new VAIterator();
-	}
-	
-	private class VAIterator implements Iterator<VASortingLine>
-	{
-		int currentIndex;
-		int expectedModCount;
-		
-		public VAIterator()
-		{
-			this.currentIndex = 0;
-			this.expectedModCount = VisualArray.this.modCount;
-		}
-		
-		@Override
-		public boolean hasNext()
-		{
-			return this.currentIndex < length();
-		}
-		
-		@Override
-		public VASortingLine next()
-		{
-			if(VisualArray.this.modCount != this.expectedModCount)
-				throw new ConcurrentModificationException();
-			int i = this.currentIndex + 1;
-			if(i > length())
-				throw new NoSuchElementException();
-			this.currentIndex = i;
-			return get(i);
-		}
-		
-		@Override
-		public void remove()
-		{
-			throw new UnsupportedOperationException();
-		}
+		return "sorted:" + sortedIndexCount + "/" + length();
 	}
 	
 	private static final long serialVersionUID = -6614080276063645167L;
