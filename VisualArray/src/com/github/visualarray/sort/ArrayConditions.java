@@ -2,12 +2,12 @@ package com.github.visualarray.sort;
 
 import java.util.Random;
 
-public enum ArrayConditions implements ArrayConditionBuilder
+public enum ArrayConditions implements SortingArrayBuilder
 {
 	SORTED
 	{
 		@Override
-		public int[] build(int maxLength, int size)
+		public int[] build(int size, int maxLength)
 		{
 			int[] values = new int[size];
 			double scaleFactor = (double)maxLength / size;
@@ -23,7 +23,7 @@ public enum ArrayConditions implements ArrayConditionBuilder
 	COMPLETELY_RANDOM
 	{
 		@Override
-		public int[] build(int maxLength, int size)
+		public int[] build(int size, int maxLength)
 		{
 			Random rand = new Random();
 			int[] values = new int[size];
@@ -39,10 +39,10 @@ public enum ArrayConditions implements ArrayConditionBuilder
 	UNIQUELY_RANDOM
 	{
 		@Override
-		public int[] build(int maxLength, int size)
+		public int[] build(int size, int maxLength)
 		{
 			Random rand = new Random();
-			int[] buf = SORTED.build(maxLength, size);
+			int[] buf = SORTED.build(size, maxLength);
 			
 			for(int i = size - 1; i > 0; --i)
 			{
@@ -58,7 +58,7 @@ public enum ArrayConditions implements ArrayConditionBuilder
 	REVERSED
 	{
 		@Override
-		public int[] build(int maxLength, int size)
+		public int[] build(int size, int maxLength)
 		{
 			int[] values = new int[size];
 			double scaleFactor = (double)maxLength / size;

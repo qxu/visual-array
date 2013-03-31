@@ -56,7 +56,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				return;
 			}
 			
-			int pivot = rand.nextInt(upper - lower + 1) + lower;
+			int pivot = this.rand.nextInt(upper - lower + 1) + lower;
 			sa.swap(pivot, lower);
 			pivot = lower;
 			int direction = 1;

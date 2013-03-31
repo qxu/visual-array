@@ -31,6 +31,7 @@ public class VASortingLine implements Comparable<VASortingLine>
 		return this.color;
 	}
 	
+	@Override
 	public String toString()
 	{
 		char[] buf = new char[length()];

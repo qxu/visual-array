@@ -1,4 +1,5 @@
 package com.github.visualarray.gui;
+
 import java.awt.Color;
 import java.util.LinkedList;
 
@@ -8,16 +9,15 @@ public class Gradient
 	
 	private final LinkedList<ColorIndex> colors = new LinkedList<>();
 	
-	
 	public Gradient(Color... colors)
 	{
 		if(colors == null)
 			throw new IllegalArgumentException("null colors");
 		this.len = colors.length;
-		if(len == 0)
+		if(this.len == 0)
 			throw new IllegalArgumentException("empty colors");
 		
-		float index = 0F, div = 1F / (len - 1);
+		float index = 0F, div = 1F / (this.len - 1);
 		for(Color c : colors)
 		{
 			this.colors.add(new ColorIndex(index, c));
@@ -32,15 +32,17 @@ public class Gradient
 		
 		ColorIndex prev = null;
 		ColorIndex next = null;
-		for(ColorIndex c : colors)
+		for(ColorIndex c : this.colors)
 		{
 			next = c;
 			if(index < c.index)
+			{
 				break;
+			}
 			prev = c;
 		}
 		
-		final float shadeIndex = (index - prev.index) / (next.index - prev.index); 
+		final float shadeIndex = (index - prev.index) / (next.index - prev.index);
 		
 		final int red = (int)(prev.r + shadeIndex * (next.r - prev.r));
 		final int green = (int)(prev.g + shadeIndex * (next.g - prev.g));
@@ -70,7 +72,7 @@ public class Gradient
 		@Override
 		public String toString()
 		{
-			return index + "@[" + r + ", " + g + ", " + b + ", " + a + "]";
+			return this.index + "@[" + this.r + ", " + this.g + ", " + this.b + ", " + this.a + "]";
 		}
 	}
 }

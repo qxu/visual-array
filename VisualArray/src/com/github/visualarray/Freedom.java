@@ -1,5 +1,7 @@
 package com.github.visualarray;
 
+import java.awt.Component;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -14,16 +16,6 @@ public class Freedom
 {
 	public static void main(String[] args)
 	{
-		va.setCompareDelay(20);
-		va.setSwapDelay(20);
-		test(SortingAlgorithms.HEAP_SORT);
-		
-	}
-	
-	static final VisualArray va;
-	
-	static
-	{
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -34,21 +26,30 @@ public class Freedom
 			e.printStackTrace();
 		}
 		
-		int[] x = ArrayConditions.COMPLETELY_RANDOM.build(600, 80);
-		va = new VisualArray(x, 4, 2);
+		int[] x = ArrayConditions.COMPLETELY_RANDOM.build(80, 600);
+		VisualArray va = new VisualArray(x, 4, 2);
+		addToAJFrame(va, "Visual Array Freedom").setVisible(true);
 		
-		JFrame frame = new JFrame("Visual Array");
+		va.setCompareDelay(20);
+		va.setSwapDelay(20);
+		test(va, SortingAlgorithms.HEAP_SORT);
+		
+	}
+	
+	public static JFrame addToAJFrame(Component c, String title)
+	{
+		JFrame frame = new JFrame(title);
 		JPanel panel = new JPanel();
-		panel.add(va);
+		panel.add(c);
 		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		return frame;
 	}
 	
-	static void test(final SortingAlgorithm algorithm)
+	public static void test(final VisualArray va, final SortingAlgorithm algorithm)
 	{
 		final Thread sorterThread = new Thread()
 		{
@@ -97,11 +98,11 @@ public class Freedom
 		}
 	}
 	
-	static void testAll()
+	public static void testAll(final VisualArray va)
 	{
 		for(SortingAlgorithm algorithm : SortingAlgorithms.values())
 		{
-			test(algorithm);
+			test(va, algorithm);
 			
 			try
 			{

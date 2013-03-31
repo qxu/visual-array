@@ -12,7 +12,7 @@ public final class Vars
 	{
 		return SCREEN_WIDTH;
 	}
-
+	
 	public static int getScreenHeight()
 	{
 		return SCREEN_HEIGHT;

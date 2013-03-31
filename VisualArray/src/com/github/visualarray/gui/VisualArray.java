@@ -11,7 +11,8 @@ import javax.swing.JComponent;
 
 import com.github.visualarray.sort.SortingArray;
 
-public class VisualArray extends JComponent implements SortingArray<VASortingLine>
+public class VisualArray extends JComponent implements
+		SortingArray<VASortingLine>
 {
 	private final int length;
 	private final int[] initialValues;
@@ -56,16 +57,16 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 		this.padding = padding;
 		this.modCount = 0;
 	}
-
+	
 	public void step()
 	{
-		synchronized(stepLock)
+		synchronized(this.stepLock)
 		{
-			if(this.stepWait <= 0)
+			if(this.stepWait < 0)
 			{
 				try
 				{
-					stepLock.wait();
+					this.stepLock.wait();
 				}
 				catch(InterruptedException e)
 				{
@@ -76,14 +77,13 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			
 			--this.stepWait;
 			
-
-			if(this.stepWait <= 0)
+			if(this.stepWait < 0)
 			{
-				stepLock.notifyAll();
+				this.stepLock.notifyAll();
 			}
 		}
 	}
-
+	
 	@Override
 	protected void paintComponent(Graphics g)
 	{
@@ -98,12 +98,12 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			g.fillRect(0, i * dy, line.length(), thickness);
 		}
 	}
-
+	
 	public int getCompareDelay()
 	{
-		return compareDelay;
+		return this.compareDelay;
 	}
-
+	
 	public void setCompareDelay(int steps)
 	{
 		if(steps < 0)
@@ -111,12 +111,12 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 		
 		this.compareDelay = steps;
 	}
-
+	
 	public int getSwapDelay()
 	{
-		return swapDelay;
+		return this.swapDelay;
 	}
-
+	
 	public void setSwapDelay(int steps)
 	{
 		if(steps < 0)
@@ -124,25 +124,26 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 		
 		this.swapDelay = steps;
 	}
-
+	
 	public int getThickness()
 	{
-		return thickness;
+		return this.thickness;
 	}
-
+	
 	public void setThickness(int thickness)
 	{
 		if(thickness < 0)
-			throw new IllegalArgumentException("Negative thickness: " + thickness);
+			throw new IllegalArgumentException(
+					"Negative thickness: " + thickness);
 		
 		this.thickness = thickness;
 	}
-
+	
 	public int getPadding()
 	{
-		return padding;
+		return this.padding;
 	}
-
+	
 	public void setPadding(int padding)
 	{
 		if(padding < 0)
@@ -154,7 +155,7 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 	@Override
 	public int length()
 	{
-		return length;
+		return this.length;
 	}
 	
 	@Override
@@ -168,17 +169,17 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 		if(steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
 		
-		synchronized(stepLock)
+		synchronized(this.stepLock)
 		{
 			if(this.stepWait > 0)
 				throw new IllegalStateException("Already waiting for steps");
 			
 			this.stepWait = steps;
-			stepLock.notifyAll();
+			this.stepLock.notifyAll();
 			
 			try
 			{
-				stepLock.wait();
+				this.stepLock.wait();
 			}
 			catch(InterruptedException e)
 			{
@@ -191,10 +192,10 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 	@Override
 	public void swap(int index1, int index2)
 	{
-		synchronized(stepLock)
+		synchronized(this.stepLock)
 		{
 			++this.modCount;
-
+			
 			VASortingLine primary = get(index1);
 			VASortingLine secondary = get(index2);
 			
@@ -206,8 +207,8 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			
 			repaint();
 			
-			waitSteps(swapDelay);
-
+			waitSteps(this.swapDelay);
+			
 			primary.setColor(priColor);
 			secondary.setColor(secColor);
 			
@@ -223,7 +224,7 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 	@Override
 	public int compare(int index1, int index2)
 	{
-		synchronized(stepLock)
+		synchronized(this.stepLock)
 		{
 			VASortingLine primary = get(index1);
 			VASortingLine secondary = get(index2);
@@ -236,7 +237,7 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			
 			repaint();
 			
-			waitSteps(compareDelay);
+			waitSteps(this.compareDelay);
 			
 			primary.setColor(priColor);
 			secondary.setColor(secColor);
@@ -247,13 +248,13 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			return va[index1].compareTo(va[index2]);
 		}
 	}
-
+	
 	@Override
 	public void markSorted(int index)
 	{
 		get(index).setColor(VAColors.getSorted());
 	}
-
+	
 	@Override
 	public void unmarkSorted(int index)
 	{
@@ -273,12 +274,12 @@ public class VisualArray extends JComponent implements SortingArray<VASortingLin
 			elements[i] = new VASortingLine(values[i]);
 		}
 	}
-
+	
 	public Iterator<VASortingLine> iterator()
 	{
 		return new VAIterator();
 	}
-
+	
 	private class VAIterator implements Iterator<VASortingLine>
 	{
 		int currentIndex;

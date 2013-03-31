@@ -13,6 +13,6 @@ public interface SortingArray<E>
 	void markSorted(int index);
 	
 	void unmarkSorted(int index);
-
+	
 	void reset();
 }

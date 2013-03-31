@@ -9,7 +9,7 @@ public class Colors
 			Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.LIGHT_GRAY,
 			Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.WHITE,
 			Color.YELLOW,};
-
+	
 	private static final Random rand = new Random();
 	
 	public static Color randomColor()
@@ -17,7 +17,7 @@ public class Colors
 		int index = rand.nextInt(13);
 		return colors[index];
 	}
-
+	
 	public static String toString(Color c)
 	{
 		if(c.equals(Color.DARK_GRAY))
