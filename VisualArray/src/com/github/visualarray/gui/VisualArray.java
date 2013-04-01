@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import javax.swing.JComponent;
 
@@ -57,7 +56,7 @@ public class VisualArray extends JComponent implements
 		this.padding = padding;
 		this.sortedIndexCount = 0;
 		
-		this.setFont(new Font("Arial", Font.PLAIN, 10));
+		this.setFont(new Font("SansSerif", Font.PLAIN, 10));
 	}
 	
 	@Override
@@ -147,8 +146,12 @@ public class VisualArray extends JComponent implements
 	@Override
 	public void markFinished()
 	{
-		if(!isSorted())
-			throw new AssertionError("not fully sorted");
+		synchronized(this.stepLock)
+		{
+			if(!isSorted())
+				throw new AssertionError("not fully sorted");
+			this.stepLock.notifyAll();
+		}
 	}
 	
 	@Override
@@ -167,13 +170,10 @@ public class VisualArray extends JComponent implements
 	{
 		synchronized(this.stepLock)
 		{
-			if(this.stepWait == 0)
+			if(isSorted())
+				return;
+			if(this.stepWait <= 0)
 			{
-				if(isSorted())
-				{
-					System.out.println("detected");
-					return;
-				}
 				try
 				{
 					this.stepLock.wait();
@@ -185,11 +185,24 @@ public class VisualArray extends JComponent implements
 				}
 			}
 			
+			if(isSorted())
+				return;
+			
 			--this.stepWait;
 			
 			if(this.stepWait <= 0)
 			{
 				this.stepLock.notifyAll();
+			}
+			
+			try
+			{
+				this.stepLock.wait();
+			}
+			catch(InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -217,94 +230,83 @@ public class VisualArray extends JComponent implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			this.stepLock.notifyAll();
 		}
 	}
 	
 	@Override
 	public void swap(int index1, int index2)
 	{
-		synchronized(this.stepLock)
-		{
-			VASortingLine primary = get(index1);
-			VASortingLine secondary = get(index2);
-			
-			Color priColor = primary.getColor();
-			Color secColor = secondary.getColor();
-			
-			primary.setColor(VAColors.getPrimarySwap());
-			secondary.setColor(VAColors.getSecondarySwap());
-			
-			repaint();
-			
-			waitSteps(this.swapDelay);
-			
-			primary.setColor(priColor);
-			secondary.setColor(secColor);
-			
-			repaint();
-			
-			VASortingLine[] va = this.elements;
-			VASortingLine tmp = va[index1];
-			va[index1] = va[index2];
-			va[index2] = tmp;
-		}
+		VASortingLine primary = get(index1);
+		VASortingLine secondary = get(index2);
+		
+		Color priColor = primary.getColor();
+		Color secColor = secondary.getColor();
+		
+		primary.setColor(VAColors.getPrimarySwap());
+		secondary.setColor(VAColors.getSecondarySwap());
+		
+		repaint();
+		
+		waitSteps(this.swapDelay);
+		
+		primary.setColor(priColor);
+		secondary.setColor(secColor);
+		
+		repaint();
+		
+		VASortingLine[] va = this.elements;
+		VASortingLine tmp = va[index1];
+		va[index1] = va[index2];
+		va[index2] = tmp;
 	}
 	
 	@Override
 	public int compare(int index1, int index2)
 	{
-		synchronized(this.stepLock)
-		{
-			VASortingLine primary = get(index1);
-			VASortingLine secondary = get(index2);
-			
-			Color priColor = primary.getColor();
-			Color secColor = secondary.getColor();
-			
-			primary.setColor(VAColors.getPrimaryCompare());
-			secondary.setColor(VAColors.getSecondaryCompare());
-			
-			repaint();
-			
-			waitSteps(this.compareDelay);
-			
-			primary.setColor(priColor);
-			secondary.setColor(secColor);
-			
-			repaint();
-			
-			VASortingLine[] va = this.elements;
-			return va[index1].compareTo(va[index2]);
-		}
+		VASortingLine primary = get(index1);
+		VASortingLine secondary = get(index2);
+		
+		Color priColor = primary.getColor();
+		Color secColor = secondary.getColor();
+		
+		primary.setColor(VAColors.getPrimaryCompare());
+		secondary.setColor(VAColors.getSecondaryCompare());
+		
+		repaint();
+		
+		waitSteps(this.compareDelay);
+		
+		primary.setColor(priColor);
+		secondary.setColor(secColor);
+		
+		repaint();
+		
+		VASortingLine[] va = this.elements;
+		return va[index1].compareTo(va[index2]);
 	}
 	
 	@Override
 	public void markSortedIndex(int index)
 	{
-		synchronized(this.stepLock)
+		VASortingLine line = get(index);
+		Color sortedColor = VAColors.getSorted();
+		if(!line.getColor().equals(sortedColor))
 		{
-			VASortingLine line = get(index);
-			Color sortedColor = VAColors.getSorted();
-			if(!line.getColor().equals(sortedColor))
-			{
-				line.setColor(sortedColor);
-				++sortedIndexCount;
-			}
+			line.setColor(sortedColor);
+			++sortedIndexCount;
 		}
 	}
 	
 	@Override
 	public void unmarkSortedIndex(int index)
 	{
-		synchronized(this.stepLock)
+		VASortingLine line = get(index);
+		Color unsortedColor = VAColors.getUnSorted();
+		if(!line.getColor().equals(unsortedColor))
 		{
-			VASortingLine line = get(index);
-			Color unsortedColor = VAColors.getUnSorted();
-			if(!line.getColor().equals(unsortedColor))
-			{
-				line.setColor(unsortedColor);
-				--sortedIndexCount;
-			}
+			line.setColor(unsortedColor);
+			--sortedIndexCount;
 		}
 	}
 	

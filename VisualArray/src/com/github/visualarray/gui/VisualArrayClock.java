@@ -1,10 +1,12 @@
 package com.github.visualarray.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -92,87 +94,101 @@ public class VisualArrayClock implements Runnable
 		}
 	}
 	
-	private static final int[] x = ArrayConditions.UNIQUELY_RANDOM.build(20, 160);
 	private static int framesCreated = 0;
 	private static int xOffset = 0;
-	private static VisualArray createVA()
+	private static int yOffset = 0;
+	
+	private static final JFrame master = new JFrame();
+	private static VisualArray[] createVAs(int n)
 	{
-		final VisualArray va = new VisualArray(x, 4, 2);
-		va.setSwapDelay(0);
-		va.setCompareDelay(1);
-		JFrame frame = new JFrame(Integer.toString(++framesCreated));
-		JPanel panel = new JPanel();
-		panel.add(va);
-		
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.add(panel);
-		frame.pack();
-		frame.setLocation(xOffset, 0);
-		xOffset += frame.getWidth();
-		frame.setVisible(true);
-		return va;
+		int[] x = ArrayConditions.UNIQUELY_RANDOM.build(20, 60);
+		VisualArray[] vas = new VisualArray[n];
+		for(int i = 0; i < n; ++i)
+		{
+			final VisualArray va = new VisualArray(x, 2, 1);
+			va.setSwapDelay(0);
+			va.setCompareDelay(1);
+			JDialog window = new JDialog(master, Integer.toString(++framesCreated));
+			JPanel panel = new JPanel();
+			panel.add(va);
+			
+			window.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			window.add(panel);
+			window.pack();
+			
+			int xEnd = xOffset + window.getWidth();
+			if(xEnd > Vars.getScreenWidth())
+			{
+				xOffset = 0;
+				yOffset += window.getHeight();
+				window.setLocation(xOffset, yOffset);
+			}
+			else
+			{
+				window.setLocation(xOffset, yOffset);
+				xOffset = xEnd;
+			}
+			
+			window.setVisible(true);
+			
+			vas[i] = va;
+		}
+		return vas;
 	}
 	
 	public static void main(String[] args)
 	{
-		VisualArrayClock clock = new VisualArrayClock(0 * 1000000);
-		
-		final VisualArray va1 = createVA();
-		final VisualArray va2 = createVA();
-		final VisualArray va3 = createVA();
-		
-		clock.add(va1);
-		clock.add(va2);
-		clock.add(va3);
-		
-		try
+		master.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		master.setVisible(true);
+		for(int i = 0; i < 20; ++i)
 		{
-			Thread.sleep(2000);
-		}
-		catch(InterruptedException e)
-		{
-		}
-
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
+			VisualArrayClock clock = new VisualArrayClock(20 * 1000000);
+			
+			final VisualArray[] va = createVAs(1);
+			
+			clock.addAll(Arrays.asList(va));
+	
+			new Thread(new Runnable()
 			{
-				SortingAlgorithms.BUBBLE_SORT.sort(va1);
-			}
-		}, "sorter 1").start();
-		
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
+				@Override
+				public void run()
+				{
+					SortingAlgorithms.COCKTAIL_SORT.sort(va[0]);
+				}
+			}, "sorter 1").start();
+			
+//			new Thread(new Runnable()
+//			{
+//				@Override
+//				public void run()
+//				{
+//					SortingAlgorithms.BUBBLE_SORT.sort(va2);
+//				}
+//			}, "sorter 2").start();
+//			
+//			new Thread(new Runnable()
+//			{
+//				@Override
+//				public void run()
+//				{
+//					SortingAlgorithms.INSERTION_SORT.sort(va3);
+//				}
+//			}, "sorter 3").start();
+			
+			Thread t = new Thread(clock, "visual array");
+			t.start();
+			
+			while(t.isAlive())
 			{
-				SortingAlgorithms.QUICK_SORT.sort(va2);
-			}
-		}, "sorter 2").start();
-		
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				SortingAlgorithms.HEAP_SORT.sort(va3);
-			}
-		}, "sorter 3").start();
-		
-		Thread t = new Thread(clock, "visual array");
-		t.start();
-		
-		while(t.isAlive())
-		{
-			System.out.println("clock running... " + clock.waitingOn());
-			try
-			{
-				Thread.sleep(1000);
-			}
-			catch(InterruptedException e)
-			{
+				try
+				{
+					Thread.sleep(200);
+				}
+				catch(InterruptedException e)
+				{
+				}
 			}
 		}
+		System.exit(0);
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.visualarray.sort;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public enum SortingAlgorithms implements SortingAlgorithm
