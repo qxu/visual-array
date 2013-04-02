@@ -1,6 +1,5 @@
 package com.github.visualarray.sort;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public enum SortingAlgorithms implements SortingAlgorithm
@@ -243,7 +242,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		{
 			int first = 0;
 			int last = sa.length() - 1;
-			while(first < last)
+			while(first <= last)
 			{
 				int shift = first;
 				for(int j = first; j < last; ++j)
@@ -277,6 +276,8 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					sa.markSortedIndex(first++);
 				}
 			}
+			
+			System.out.println("first:" + first + ", last:" + last);
 		}
 	},
 	

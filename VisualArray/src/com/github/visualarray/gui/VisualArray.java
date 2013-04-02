@@ -20,8 +20,8 @@ public class VisualArray extends JComponent implements
 	private int padding;
 	
 	private volatile int sortedIndexCount;
-	private int compareDelay;
-	private int swapDelay;
+	private int compareDelay = 1;
+	private int swapDelay = 0;
 	private volatile int stepWait;
 	private final Object stepLock = new Object();
 	
@@ -247,7 +247,7 @@ public class VisualArray extends JComponent implements
 		secondary.setColor(VAColors.getSecondarySwap());
 		
 		repaint();
-		
+
 		waitSteps(this.swapDelay);
 		
 		primary.setColor(priColor);

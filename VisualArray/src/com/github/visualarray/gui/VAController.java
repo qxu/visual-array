@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import com.github.visualarray.sort.ArrayConditions;
 import com.github.visualarray.sort.SortingAlgorithm;
 import com.github.visualarray.sort.SortingAlgorithms;
-import com.github.visualarray.sort.SortingArrayBuilder;
+import com.github.visualarray.sort.ArrayBuilder;
 
 public class VAController
 {
@@ -34,7 +34,7 @@ public class VAController
 //	private final JButton pauseButton;
 //	private final JButton resetButton;
 	
-	private final List<SortingArrayBuilder> arrayBuilders;
+	private final List<ArrayBuilder> arrayBuilders;
 	private final List<SortingAlgorithm> algorithms;
 	
 	private final List<VAHolder> vaHolders;
@@ -44,7 +44,7 @@ public class VAController
 		this(null, null);
 	}
 	
-	public VAController(Collection<? extends SortingArrayBuilder> arrayBuilders, Collection<? extends SortingAlgorithm> algorithms)
+	public VAController(Collection<? extends ArrayBuilder> arrayBuilders, Collection<? extends SortingAlgorithm> algorithms)
 	{
 		JFrame cf = new JFrame("Visual Array");
 		
@@ -60,7 +60,7 @@ public class VAController
 		
 		final int numOfAlgorithms = algorithms.size();
 		
-		List<SortingArrayBuilder> sab = new ArrayList<>(arrayBuilders);
+		List<ArrayBuilder> sab = new ArrayList<>(arrayBuilders);
 		List<SortingAlgorithm> algs = new ArrayList<>(numOfAlgorithms);
 		List<VAHolder> vah = new ArrayList<>(numOfAlgorithms);
 		
@@ -69,7 +69,7 @@ public class VAController
 		for(SortingAlgorithm sa : algorithms)
 		{
 			algs.add(sa);
-			vah.add(new VAHolder(cf, new VisualArray(x, DEFUALT_THICKNESS, DEFAULT_PADDING)));
+			vah.add(new VAHolder(cf, new VisualArray(x, DEFUALT_THICKNESS, DEFAULT_PADDING), sa));
 		}
 		
 		JPanel sp = new JPanel();

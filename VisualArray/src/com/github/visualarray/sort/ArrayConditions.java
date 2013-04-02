@@ -2,7 +2,7 @@ package com.github.visualarray.sort;
 
 import java.util.Random;
 
-public enum ArrayConditions implements SortingArrayBuilder
+public enum ArrayConditions implements ArrayBuilder
 {
 	SORTED
 	{
