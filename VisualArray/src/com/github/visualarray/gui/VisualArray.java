@@ -5,56 +5,68 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JComponent;
 
 import com.github.visualarray.sort.SortingArray;
 
-public class VisualArray extends JComponent implements
-		SortingArray<VASortingLine>
+public class VisualArray extends JComponent implements SortingArray
 {
-	private final int length;
-	private final int[] initialValues;
-	private VASortingLine[] elements;
+	private static final double ASPECT_RATIO = 1; 
+
+	private double[] initialValues;
+	
+	private int[] elements;
+	private Color[] elemColors;
+
 	private int thickness;
 	private int padding;
-	
-	private volatile int sortedIndexCount;
+
 	private int compareDelay = 1;
 	private int swapDelay = 0;
+	private volatile int sortedIndexCount;
 	private volatile int stepWait;
 	private final Object stepLock = new Object();
 	
-	public VisualArray(int[] x, int thickness, int padding)
+	public VisualArray(double[] x, int thickness, int padding)
 	{
 		if(x == null)
 			throw new NullPointerException();
 		
-		int[] values = x.clone();
-		int length = x.length;
+		double[] values = x.clone();
+		int len = values.length;
 		
-		int max = 0;
-		VASortingLine[] elements = new VASortingLine[length];
-		for(int i = 0; i < length; ++i)
+		int scaleFactor = (int)((thickness * len + padding * (len - 1)) * ASPECT_RATIO);
+		
+		int maxLength = 0;
+		int[] elem = new int[len];
+		Color[] colors = new Color[len];
+		Color unSorted = VAColors.getUnSorted();
+		for(int i = 0; i < len; ++i)
 		{
-			int value = values[i];
-			elements[i] = new VASortingLine(value);
-			if(value > max)
+			int lineLength = (int)Math.round(values[i] * scaleFactor);
+			if(lineLength > maxLength)
 			{
-				max = value;
+				maxLength = lineLength;
 			}
+			
+			elem[i] = lineLength;
+			colors[i] = unSorted;
 		}
 		
-		Dimension size = new Dimension(max, length * (thickness + padding));
+		Dimension size = new Dimension(maxLength, len * (thickness + padding));
 		setPreferredSize(size);
 		setSize(size);
 		
-		this.length = length;
 		this.initialValues = values;
-		this.elements = elements;
+		this.elements = elem;
 		this.thickness = thickness;
 		this.padding = padding;
 		this.sortedIndexCount = 0;
+		this.stepWait = 0;
 		
 		this.setFont(new Font("SansSerif", Font.PLAIN, 10));
 	}
@@ -64,7 +76,9 @@ public class VisualArray extends JComponent implements
 	{
 		int thickness = getThickness();
 		int dy = thickness + getPadding();
-		VASortingLine[] va = this.elements;
+
+		int[] elem = this.elements;
+		
 		int length = length();
 		for(int i = 0; i < length; ++i)
 		{
@@ -80,6 +94,24 @@ public class VisualArray extends JComponent implements
 		int strWidth = fm.stringWidth(debug);
 		int strHeight = fm.getHeight();
 		g.drawString(debug, getWidth() - strWidth, strHeight);
+	}
+	
+	public void setInitialValues(double[] x)
+	{//TODO
+		double[] values = x.clone();
+		int len = values.length;
+		int scaleFactor = (int)((thickness * len + padding * (len - 1)) * ASPECT_RATIO);
+		int maxLength = 0;
+		VASortingLine[] elements = new VASortingLine[len];
+		for(int i = 0; i < len; ++i)
+		{
+			int lineLength = (int)Math.round(values[i] * scaleFactor);
+			elements[i] = new VASortingLine(lineLength);
+			if(lineLength > maxLength)
+			{
+				maxLength = lineLength;
+			}
+		}
 	}
 	
 	public int getCompareDelay()
@@ -157,16 +189,10 @@ public class VisualArray extends JComponent implements
 	@Override
 	public int length()
 	{
-		return this.length;
+		return this.elements.length;
 	}
 	
-	@Override
-	public VASortingLine get(int index)
-	{
-		return this.elements[index];
-	}
-
-	public void step()
+	public void step() throws InterruptedException
 	{
 		synchronized(this.stepLock)
 		{
@@ -174,15 +200,7 @@ public class VisualArray extends JComponent implements
 				return;
 			if(this.stepWait <= 0)
 			{
-				try
-				{
-					this.stepLock.wait();
-				}
-				catch(InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				this.stepLock.wait();
 			}
 			
 			if(isSorted())
@@ -195,19 +213,11 @@ public class VisualArray extends JComponent implements
 				this.stepLock.notifyAll();
 			}
 			
-			try
-			{
-				this.stepLock.wait();
-			}
-			catch(InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			this.stepLock.wait();
 		}
 	}
 
-	private void waitSteps(int steps)
+	private void waitSteps(int steps) throws InterruptedException
 	{
 		if(steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
@@ -221,21 +231,16 @@ public class VisualArray extends JComponent implements
 			this.stepWait = steps;
 			this.stepLock.notifyAll();
 			
-			try
-			{
-				this.stepLock.wait();
-			}
-			catch(InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			this.stepLock.wait();
+			
 			this.stepLock.notifyAll();
 		}
 	}
 	
+	private void setColor(int index, Color color)
+	
 	@Override
-	public void swap(int index1, int index2)
+	public void swap(int index1, int index2) throws InterruptedException
 	{
 		VASortingLine primary = get(index1);
 		VASortingLine secondary = get(index2);
@@ -262,7 +267,7 @@ public class VisualArray extends JComponent implements
 	}
 	
 	@Override
-	public int compare(int index1, int index2)
+	public int compare(int index1, int index2) throws InterruptedException
 	{
 		VASortingLine primary = get(index1);
 		VASortingLine secondary = get(index2);
@@ -321,6 +326,9 @@ public class VisualArray extends JComponent implements
 		{
 			elements[i] = new VASortingLine(values[i]);
 		}
+		this.sortedIndexCount = 0;
+		this.stepWait = 0;
+		repaint();
 	}
 	
 	@Override

@@ -81,4 +81,9 @@ public class NanoSleeper
 		this.nanosBehind += (stopTime - this.shouldStopAt);
 		this.shouldStopAt = 0;
 	}
+	
+	public void reset()
+	{
+		this.shouldStopAt = 0;
+	}
 }

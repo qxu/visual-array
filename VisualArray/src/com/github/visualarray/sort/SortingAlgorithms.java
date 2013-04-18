@@ -7,7 +7,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	BUBBLE_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			int i = sa.length();
 			
@@ -38,12 +38,12 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		private final Random rand = new Random();
 		
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			quickSort(sa, 0, sa.length() - 1);
 		}
 		
-		private void quickSort(SortingArray<?> sa, int lower, int upper)
+		private void quickSort(SortingArray sa, int lower, int upper) throws InterruptedException
 		{
 			int difference = upper - lower;
 			
@@ -86,7 +86,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	INSERTION_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			int length = sa.length();
 			sa.markSortedIndex(0);
@@ -114,7 +114,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SELECTION_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			for(int i = sa.length() - 1; i >= 0; --i)
 			{
@@ -135,13 +135,13 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COMB_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			combInsertionSort(sa, 1.35, 1);
 		}
 		
-		private void combInsertionSort(SortingArray<?> sa,
-				final double shrinkFactor, final int bound)
+		private void combInsertionSort(SortingArray sa,
+				final double shrinkFactor, final int bound) throws InterruptedException
 		{
 			if(shrinkFactor < 0.0)
 				throw new IllegalArgumentException("Illegal shrink factor "
@@ -186,7 +186,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	HEAP_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			int length = sa.length();
 			int start = (length - 2) / 2;
@@ -207,7 +207,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			sa.markSortedIndex(0);
 		}
 		
-		private void heapSink(SortingArray<?> sa, int start, int end)
+		private void heapSink(SortingArray sa, int start, int end) throws InterruptedException
 		{
 			int root = start;
 			
@@ -238,7 +238,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COCKTAIL_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			int first = 0;
 			int last = sa.length() - 1;
@@ -284,7 +284,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SHELL_SORT
 	{
 		@Override
-		protected void doSort(SortingArray<?> sa)
+		protected void doSort(SortingArray sa) throws InterruptedException
 		{
 			int len = sa.length();
 			int gap = 1;
@@ -336,9 +336,9 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		this.name = name;
 	}
 	
-	protected abstract void doSort(SortingArray<?> sa);
+	protected abstract void doSort(SortingArray sa) throws InterruptedException;
 	
-	public final void sort(SortingArray<?> sa)
+	public final void sort(SortingArray sa) throws InterruptedException
 	{
 		doSort(sa);
 		sa.markFinished();
