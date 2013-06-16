@@ -1,53 +1,44 @@
 package com.github.visualarray.gui.components;
 
-import java.awt.Window;
-import java.util.LinkedHashMap;
-
-import javax.swing.JDialog;
-
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class DialogController 
 {
-	private final Window owner;
+	private Set<VisualArrayDialog> vaDialogSet;
 	
-	private LinkedHashMap<VisualArray, VisualArrayDialog> vaDialogMap;
-	
-	public DialogController(Window owner)
+	public DialogController()
 	{
-		this.owner = owner;
-		this.vaDialogMap = new LinkedHashMap<>();
+		this.vaDialogSet = new LinkedHashSet<>();
 	}
 	
-	public void addVisualArray(VisualArray va, String title)
+	public void addVisualArrayDialog(VisualArrayDialog dialog, String title)
 	{
-		if(vaDialogMap.containsKey(va))
-			throw new IllegalStateException();
-		
-		VisualArrayDialog dialog = new VisualArrayDialog(owner, va);
-		dialog.setDefaultCloseOperation(VisualArrayDialog.DISPOSE_ON_CLOSE);
-		dialog.setResizable(false);
-		dialog.pack();
-		vaDialogMap.put(va, dialog);
-		
+		vaDialogSet.add(dialog);
 		updateLocations();
 	}
 	
-	public void removeVisualArray(VisualArray va)
+	public void removeVisualArrayDialog(VisualArrayDialog dialog)
 	{
-		JDialog dialog = vaDialogMap.get(va);
-		dialog.dispose();
-		vaDialogMap.remove(va);
-		
-		updateLocations();
+		if(vaDialogSet.remove(dialog))
+		{
+			updateLocations();
+		}
+	}
+	
+	public void addAll(Collection<VisualArrayDialog> dialogs)
+	{
+		vaDialogSet.addAll(dialogs);
 	}
 	
 	public void removeAll()
 	{
-		for(JDialog dialog : vaDialogMap.values())
+		if(!vaDialogSet.isEmpty())
 		{
-			dialog.dispose();
+			vaDialogSet.clear();
+			updateLocations();
 		}
-		vaDialogMap.clear();
 	}
 	
 	public void revalidate()
@@ -60,7 +51,7 @@ public class DialogController
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(JDialog dialog : vaDialogMap.values())
+		for(VisualArrayDialog dialog : vaDialogSet)
 		{
 			dialog.setResizable(false);
 			dialog.pack();

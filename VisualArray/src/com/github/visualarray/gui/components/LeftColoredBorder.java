@@ -1,4 +1,4 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.gui.components;
 
 import java.awt.Color;
 import java.awt.Component;

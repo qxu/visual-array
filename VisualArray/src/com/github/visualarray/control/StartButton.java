@@ -10,6 +10,7 @@ public class StartButton extends MultiTextButton implements ActionListener
 	
 	public StartButton(ControlPanel controlPanel)
 	{
+		super();
 		this.controlPanel = controlPanel;
 		for(State state : State.values())
 		{
@@ -25,18 +26,13 @@ public class StartButton extends MultiTextButton implements ActionListener
 		switch(state)
 		{
 		case START:
-			controlPanel.start();
-			setState(State.PAUSE);
-			controlPanel.getStopButton().setEnabled(true);
-			controlPanel.getResetButton().setEnabled(true);
+			controlPanel.startSorter();
 			break;
 		case PAUSE:
-			controlPanel.pause();
-			setState(State.RESUME);
+			controlPanel.pauseSorter();
 			break;
 		case RESUME:
-			controlPanel.resume();
-			setState(State.PAUSE);
+			controlPanel.resumeSorter();
 			break;
 		}
 	}

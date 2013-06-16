@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.github.visualarray.gui.components.VisualArray;
@@ -21,7 +22,10 @@ public class Sorter implements Runnable
 
 	private ReentrantLock runningLock = new ReentrantLock();
 	private volatile boolean stopRequested = false;
+	
 	private ReentrantLock pauseLock = new ReentrantLock();
+	private Condition unPauseCondition = pauseLock.newCondition();
+	private volatile boolean pauseRequested = false;
 	
 	public Sorter(long stepDelayNanos)
 	{
@@ -61,11 +65,13 @@ public class Sorter implements Runnable
 
 	public void pause()
 	{
-		pauseLock.lock();
+		pauseRequested = true;
 	}
 	
 	public void resume()
 	{
+		pauseLock.lock();
+		unPauseCondition.signalAll();
 		pauseLock.unlock();
 	}
 	
@@ -79,14 +85,27 @@ public class Sorter implements Runnable
 		if(runningLock.isLocked())
 		{
 			stopRequested = true;
+			pauseLock.lock();
+			unPauseCondition.signalAll();
+			pauseLock.unlock();
 		}
 	}
 	
 	private boolean interruptCheck()
 	{
-		if(pauseLock.isLocked())
+		if(pauseRequested)
 		{
+			pauseRequested = false;
 			pauseLock.lock();
+			try
+			{
+				unPauseCondition.await();
+			}
+			catch(InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			pauseLock.unlock();
 		}
 		

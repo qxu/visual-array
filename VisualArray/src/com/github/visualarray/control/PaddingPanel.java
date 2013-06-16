@@ -8,24 +8,25 @@ import javax.swing.text.Document;
 
 import com.github.visualarray.gui.components.VisualArray;
 
-public class SizePanel extends JPanel
+public class PaddingPanel extends JPanel
 {
-	private final ControlPanel controlPanel;
+	private ControlPanel controlPanel;
 
-	public SizePanel(ControlPanel controlPanel, int defaultSize)
+	public PaddingPanel(ControlPanel controlPanel, int defaultPadding)
 	{
 		this.controlPanel = controlPanel;
-		add(new JLabel("size:"));
 
-		JNumberTextField sizeField = new JNumberTextField(8,
+		add(new JLabel("padding:"));
+
+		JNumberTextField paddingField = new JNumberTextField(8,
 				JNumberTextField.INTEGRAL, false);
-		sizeField.setNumber(defaultSize);
-		sizeField.getDocument().addDocumentListener(
-				new SizeFieldDocumentListener());
-		add(sizeField);
+		paddingField.setNumber(defaultPadding);
+		paddingField.getDocument().addDocumentListener(
+				new PaddingFieldDocumentListener());
+		add(paddingField);
 	}
 
-	private class SizeFieldDocumentListener extends
+	private class PaddingFieldDocumentListener extends
 			AbstractDocumentUpdateListener
 	{
 		@Override
@@ -35,12 +36,11 @@ public class SizePanel extends JPanel
 			try
 			{
 				String text = doc.getText(0, doc.getLength());
-				int size = Integer.parseInt(text);
+				int padding = Integer.parseInt(text);
 
-				double[] values = controlPanel.getArrayBuilder().build(size);
 				for(VisualArray va : controlPanel.getVisualArrayList())
 				{
-					va.setInitialValues(values);
+					va.setPadding(padding);
 				}
 				controlPanel.reset();
 			}
@@ -50,5 +50,5 @@ public class SizePanel extends JPanel
 		}
 	}
 
-	private static final long serialVersionUID = -6755964296026667619L;
+	private static final long serialVersionUID = 3558691930742832688L;
 }

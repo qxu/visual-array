@@ -6,7 +6,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import com.github.visualarray.gui.JNumberTextField;
 
 public class DelayPanel extends JPanel
 {
@@ -19,7 +18,7 @@ public class DelayPanel extends JPanel
 		add(new JLabel("step delay (ms):"));
 		
 		JNumberTextField delayField = new JNumberTextField(8,
-				JNumberTextField.DECIMAL, false);
+				JNumberTextField.FLOATING_POINT, false);
 		delayField.setNumber(defaultDelay);
 		delayField.getDocument().addDocumentListener(
 				new DelayFieldDocumentListener());

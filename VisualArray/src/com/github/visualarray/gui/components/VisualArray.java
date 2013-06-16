@@ -349,6 +349,9 @@ public class VisualArray extends JComponent implements Runnable
 		this.sortedIndexCount = 0;
 		this.stepWait = 0;
 		
+		this.stepsUsed = 0;
+		this.stepsTriggered = 0;
+		
 		Dimension size = new Dimension(maxLength, len * (thickness + padding));
 		setPreferredSize(size);
 		setSize(size);
