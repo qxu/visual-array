@@ -1,9 +1,11 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+
+import com.github.visualarray.control.ControlPanel;
 
 public class ResetButton extends JButton implements ActionListener
 {
@@ -12,7 +14,7 @@ public class ResetButton extends JButton implements ActionListener
 	public ResetButton(ControlPanel controlPanel)
 	{
 		this.controlPanel = controlPanel;
-		setText("reset");
+		setText("Reset");
 		addActionListener(this);
 	}
 

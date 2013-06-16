@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -6,27 +6,28 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
-public class PaddingPanel extends JPanel
+public class ThicknessPanel extends JPanel
 {
 	private ControlPanel controlPanel;
 
-	public PaddingPanel(ControlPanel controlPanel, int defaultPadding)
+	public ThicknessPanel(ControlPanel controlPanel, int defaultThickness)
 	{
 		this.controlPanel = controlPanel;
 
-		add(new JLabel("padding:"));
+		add(new JLabel("Thickness:"));
 
-		JNumberTextField paddingField = new JNumberTextField(8,
+		JNumberTextField thicknessField = new JNumberTextField(8,
 				JNumberTextField.INTEGRAL, false);
-		paddingField.setNumber(defaultPadding);
-		paddingField.getDocument().addDocumentListener(
-				new PaddingFieldDocumentListener());
-		add(paddingField);
+		thicknessField.setNumber(defaultThickness);
+		thicknessField.getDocument().addDocumentListener(
+				new ThicknessFieldDocumentListener());
+		add(thicknessField);
 	}
 
-	private class PaddingFieldDocumentListener extends
+	private class ThicknessFieldDocumentListener extends
 			AbstractDocumentUpdateListener
 	{
 		@Override
@@ -36,11 +37,11 @@ public class PaddingPanel extends JPanel
 			try
 			{
 				String text = doc.getText(0, doc.getLength());
-				int padding = Integer.parseInt(text);
+				int thickness = Integer.parseInt(text);
 
 				for(VisualArray va : controlPanel.getVisualArrayList())
 				{
-					va.setPadding(padding);
+					va.setThickness(thickness);
 				}
 				controlPanel.reset();
 			}
@@ -50,5 +51,5 @@ public class PaddingPanel extends JPanel
 		}
 	}
 
-	private static final long serialVersionUID = 3558691930742832688L;
+	private static final long serialVersionUID = 3925362435771732124L;
 }

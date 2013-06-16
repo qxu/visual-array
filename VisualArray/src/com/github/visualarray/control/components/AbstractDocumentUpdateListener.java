@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

@@ -1,10 +1,13 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
+import com.github.visualarray.control.ControlPanel;
+import com.github.visualarray.control.Sorter;
 
 
 public class DelayPanel extends JPanel
@@ -15,7 +18,7 @@ public class DelayPanel extends JPanel
 	{
 		this.controlPanel = controlPanel;
 		
-		add(new JLabel("step delay (ms):"));
+		add(new JLabel("Step Delay (ms):"));
 		
 		JNumberTextField delayField = new JNumberTextField(8,
 				JNumberTextField.FLOATING_POINT, false);

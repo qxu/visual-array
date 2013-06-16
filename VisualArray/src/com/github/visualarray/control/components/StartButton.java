@@ -1,7 +1,10 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import com.github.visualarray.control.ControlPanel;
+import com.github.visualarray.util.StringUtil;
 
 public class StartButton extends MultiTextButton implements ActionListener
 {
@@ -50,16 +53,16 @@ public class StartButton extends MultiTextButton implements ActionListener
 	
 	public enum State
 	{
-		START("start"),
-		PAUSE("pause"),
-		RESUME("resume");
-		
-		private State(String text)
-		{
-			this.text = text;
-		}
+		START,
+		PAUSE,
+		RESUME;
 		
 		private final String text;
+		
+		private State()
+		{
+			this.text = StringUtil.capitalize(name().replace('_', ' ').toLowerCase());
+		}
 		
 		@Override
 		public String toString()

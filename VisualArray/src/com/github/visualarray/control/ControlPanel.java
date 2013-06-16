@@ -14,7 +14,16 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import com.github.visualarray.control.StartButton.State;
+import com.github.visualarray.control.components.DelayPanel;
+import com.github.visualarray.control.components.PaddingPanel;
+import com.github.visualarray.control.components.ResetButton;
+import com.github.visualarray.control.components.ShowAllCheckBox;
+import com.github.visualarray.control.components.ShowVisualArrayCheckBox;
+import com.github.visualarray.control.components.SizePanel;
+import com.github.visualarray.control.components.StartButton;
+import com.github.visualarray.control.components.StopButton;
+import com.github.visualarray.control.components.ThicknessPanel;
+import com.github.visualarray.control.components.StartButton.State;
 import com.github.visualarray.gui.components.DialogController;
 import com.github.visualarray.gui.components.VisualArray;
 import com.github.visualarray.gui.components.VisualArrayDialog;

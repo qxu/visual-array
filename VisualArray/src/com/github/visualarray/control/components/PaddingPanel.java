@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -6,27 +6,28 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
-public class ThicknessPanel extends JPanel
+public class PaddingPanel extends JPanel
 {
 	private ControlPanel controlPanel;
 
-	public ThicknessPanel(ControlPanel controlPanel, int defaultThickness)
+	public PaddingPanel(ControlPanel controlPanel, int defaultPadding)
 	{
 		this.controlPanel = controlPanel;
 
-		add(new JLabel("thickness:"));
+		add(new JLabel("Padding:"));
 
-		JNumberTextField thicknessField = new JNumberTextField(8,
+		JNumberTextField paddingField = new JNumberTextField(8,
 				JNumberTextField.INTEGRAL, false);
-		thicknessField.setNumber(defaultThickness);
-		thicknessField.getDocument().addDocumentListener(
-				new ThicknessFieldDocumentListener());
-		add(thicknessField);
+		paddingField.setNumber(defaultPadding);
+		paddingField.getDocument().addDocumentListener(
+				new PaddingFieldDocumentListener());
+		add(paddingField);
 	}
 
-	private class ThicknessFieldDocumentListener extends
+	private class PaddingFieldDocumentListener extends
 			AbstractDocumentUpdateListener
 	{
 		@Override
@@ -36,11 +37,11 @@ public class ThicknessPanel extends JPanel
 			try
 			{
 				String text = doc.getText(0, doc.getLength());
-				int thickness = Integer.parseInt(text);
+				int padding = Integer.parseInt(text);
 
 				for(VisualArray va : controlPanel.getVisualArrayList())
 				{
-					va.setThickness(thickness);
+					va.setPadding(padding);
 				}
 				controlPanel.reset();
 			}
@@ -50,5 +51,5 @@ public class ThicknessPanel extends JPanel
 		}
 	}
 
-	private static final long serialVersionUID = 3925362435771732124L;
+	private static final long serialVersionUID = 3558691930742832688L;
 }

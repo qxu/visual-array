@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.swing.JCheckBox;
 
+import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
 public class ShowAllCheckBox extends JCheckBox implements ActionListener
@@ -14,7 +15,7 @@ public class ShowAllCheckBox extends JCheckBox implements ActionListener
 
 	public ShowAllCheckBox(ControlPanel controlPanel)
 	{
-		super("show all");
+		super("Show All");
 		this.controlPanel = controlPanel;
 
 		addActionListener(this);

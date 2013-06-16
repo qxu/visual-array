@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -6,6 +6,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
 public class SizePanel extends JPanel
@@ -15,7 +16,7 @@ public class SizePanel extends JPanel
 	public SizePanel(ControlPanel controlPanel, int defaultSize)
 	{
 		this.controlPanel = controlPanel;
-		add(new JLabel("size:"));
+		add(new JLabel("Size:"));
 
 		JNumberTextField sizeField = new JNumberTextField(8,
 				JNumberTextField.INTEGRAL, false);

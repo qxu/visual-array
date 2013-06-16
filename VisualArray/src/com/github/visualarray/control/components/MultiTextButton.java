@@ -1,4 +1,4 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import java.awt.Dimension;
 import java.util.HashSet;

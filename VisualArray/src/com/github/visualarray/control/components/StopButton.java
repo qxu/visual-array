@@ -1,9 +1,11 @@
-package com.github.visualarray.control;
+package com.github.visualarray.control.components;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+
+import com.github.visualarray.control.ControlPanel;
 
 public class StopButton extends JButton implements ActionListener
 {
@@ -11,7 +13,7 @@ public class StopButton extends JButton implements ActionListener
 	
 	public StopButton(ControlPanel controlPanel)
 	{
-		super("stop");
+		super("Stop");
 		this.controlPanel = controlPanel;
 		setEnabled(false);
 		addActionListener(this);

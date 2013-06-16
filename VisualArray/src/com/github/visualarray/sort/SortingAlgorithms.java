@@ -3,6 +3,7 @@ package com.github.visualarray.sort;
 import java.util.Random;
 
 import com.github.visualarray.gui.components.VisualArray;
+import com.github.visualarray.util.StringUtil;
 
 public enum SortingAlgorithms implements SortingAlgorithm
 {
@@ -330,7 +331,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	
 	private SortingAlgorithms()
 	{
-		this.name = name().replace('_', ' ').toLowerCase();
+		this.name = StringUtil.capitalize(name().replace('_', ' ').toLowerCase());
 	}
 	
 	private SortingAlgorithms(String name)
