@@ -2,14 +2,16 @@ package com.github.visualarray.sort;
 
 import java.util.Random;
 
+import com.github.visualarray.gui.components.VisualArray;
+
 public enum SortingAlgorithms implements SortingAlgorithm
 {
 	BUBBLE_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int i = sa.length();
+			int i = va.length();
 			
 			while(i > 0)
 			{
@@ -19,15 +21,15 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					int index1 = j - 1;
 					int index2 = j;
 					
-					if(sa.compare(index1, index2) > 0)
+					if(va.compare(index1, index2) > 0)
 					{
-						sa.swap(index1, index2);
+						va.swap(index1, index2);
 						changeIndex = j;
 					}
 				}
 				while(i > changeIndex) // TODO
 				{
-					sa.markSortedIndex(--i);
+					va.markSortedIndex(--i);
 				}
 			}
 		}
@@ -38,12 +40,12 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		private final Random rand = new Random();
 		
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			quickSort(sa, 0, sa.length() - 1);
+			quickSort(va, 0, va.length() - 1);
 		}
 		
-		private void quickSort(SortingArray sa, int lower, int upper) throws InterruptedException
+		private void quickSort(VisualArray va, int lower, int upper) throws InterruptedException
 		{
 			int difference = upper - lower;
 			
@@ -52,21 +54,21 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			
 			if(difference == 0)
 			{
-				sa.markSortedIndex(upper);
+				va.markSortedIndex(upper);
 				return;
 			}
 			
 			int pivot = this.rand.nextInt(upper - lower + 1) + lower;
-			sa.swap(pivot, lower);
+			va.swap(pivot, lower);
 			pivot = lower;
 			int direction = 1;
 			
 			int i = upper;
 			while(i - pivot != 0)
 			{
-				if((sa.compare(pivot, i) > 0) == (direction > 0))
+				if((va.compare(pivot, i) > 0) == (direction > 0))
 				{
-					sa.swap(pivot, i);
+					va.swap(pivot, i);
 					int tmp = pivot;
 					pivot = i;
 					i = tmp;
@@ -76,20 +78,20 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				i -= direction;
 			}
 			
-			sa.markSortedIndex(pivot);
+			va.markSortedIndex(pivot);
 			
-			quickSort(sa, lower, pivot - 1);
-			quickSort(sa, pivot + 1, upper);
+			quickSort(va, lower, pivot - 1);
+			quickSort(va, pivot + 1, upper);
 		}
 	},
 	
 	INSERTION_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int length = sa.length();
-			sa.markSortedIndex(0);
+			int length = va.length();
+			va.markSortedIndex(0);
 			for(int i = 1; i < length; ++i)
 			{
 				int j = i;
@@ -98,15 +100,15 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					int index1 = j;
 					int index2 = j - 1;
 					
-					if(sa.compare(index1, index2) >= 0)
+					if(va.compare(index1, index2) >= 0)
 					{
 						break;
 					}
 					
-					sa.swap(index1, index2);
+					va.swap(index1, index2);
 					--j;
 				}
-				sa.markSortedIndex(j);
+				va.markSortedIndex(j);
 			}
 		}
 	},
@@ -114,20 +116,20 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SELECTION_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			for(int i = sa.length() - 1; i >= 0; --i)
+			for(int i = va.length() - 1; i >= 0; --i)
 			{
 				int maxIndex = i;
 				for(int j = i - 1; j >= 0; --j)
 				{
-					if(sa.compare(maxIndex, j) < 0)
+					if(va.compare(maxIndex, j) < 0)
 					{
 						maxIndex = j;
 					}
 				}
-				sa.swap(maxIndex, i);
-				sa.markSortedIndex(i);
+				va.swap(maxIndex, i);
+				va.markSortedIndex(i);
 			}
 		}
 	},
@@ -135,12 +137,12 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COMB_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			combInsertionSort(sa, 1.35, 1);
+			combInsertionSort(va, 1.35, 1);
 		}
 		
-		private void combInsertionSort(SortingArray sa,
+		private void combInsertionSort(VisualArray va,
 				final double shrinkFactor, final int bound) throws InterruptedException
 		{
 			if(shrinkFactor < 0.0)
@@ -149,7 +151,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			if(bound < 1)
 				throw new IllegalArgumentException("Illegal bound " + bound);
 			
-			int length = sa.length();
+			int length = va.length();
 			int gap = length;
 			
 			while(gap > bound)
@@ -166,9 +168,9 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				{
 					int index1 = i;
 					int index2 = i + gap;
-					if(sa.compare(index1, index2) > 0)
+					if(va.compare(index1, index2) > 0)
 					{
-						sa.swap(index1, index2);
+						va.swap(index1, index2);
 						changed = true;
 					}
 					++i;
@@ -179,35 +181,35 @@ public enum SortingAlgorithms implements SortingAlgorithm
 					gap = (int)(gap / shrinkFactor);
 				}
 			}
-			INSERTION_SORT.sort(sa);
+			INSERTION_SORT.sort(va);
 		}
 	},
 	
 	HEAP_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int length = sa.length();
+			int length = va.length();
 			int start = (length - 2) / 2;
 			while(start >= 0)
 			{
-				heapSink(sa, start, length - 1);
+				heapSink(va, start, length - 1);
 				--start;
 			}
 			
 			int end = length - 1;
 			while(end > 0)
 			{
-				sa.swap(0, end);
-				sa.markSortedIndex(end);
+				va.swap(0, end);
+				va.markSortedIndex(end);
 				--end;
-				heapSink(sa, 0, end);
+				heapSink(va, 0, end);
 			}
-			sa.markSortedIndex(0);
+			va.markSortedIndex(0);
 		}
 		
-		private void heapSink(SortingArray sa, int start, int end) throws InterruptedException
+		private void heapSink(VisualArray va, int start, int end) throws InterruptedException
 		{
 			int root = start;
 			
@@ -215,18 +217,18 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			{
 				int child = root * 2 + 1;
 				int swap = root;
-				if(sa.compare(child, swap) > 0)
+				if(va.compare(child, swap) > 0)
 				{
 					swap = child;
 				}
 				if(child < end
-						&& sa.compare(swap, child + 1) < 0)
+						&& va.compare(swap, child + 1) < 0)
 				{
 					swap = child + 1;
 				}
 				if(swap != root)
 				{
-					sa.swap(root, swap);
+					va.swap(root, swap);
 					root = swap;
 				}
 				else
@@ -238,10 +240,10 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	COCKTAIL_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
 			int first = 0;
-			int last = sa.length() - 1;
+			int last = va.length() - 1;
 			while(first <= last)
 			{
 				int shift = first;
@@ -249,15 +251,15 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				{
 					int index1 = j;
 					int index2 = j + 1;
-					if(sa.compare(index1, index2) > 0)
+					if(va.compare(index1, index2) > 0)
 					{
-						sa.swap(index1, index2);
+						va.swap(index1, index2);
 						shift = j;
 					}
 				}
 				while(last > shift) // TODO
 				{
-					sa.markSortedIndex(last--);
+					va.markSortedIndex(last--);
 				}
 				
 				shift = last;
@@ -265,15 +267,15 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				{
 					int index1 = j;
 					int index2 = j + 1;
-					if(sa.compare(index1, index2) > 0)
+					if(va.compare(index1, index2) > 0)
 					{
-						sa.swap(index1, index2);
+						va.swap(index1, index2);
 						shift = j;
 					}
 				}
 				while(first <= shift) // TODO
 				{
-					sa.markSortedIndex(first++);
+					va.markSortedIndex(first++);
 				}
 			}
 			
@@ -284,9 +286,9 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	SHELL_SORT
 	{
 		@Override
-		protected void doSort(SortingArray sa) throws InterruptedException
+		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int len = sa.length();
+			int len = va.length();
 			int gap = 1;
 			while(gap < len - 1)
 			{
@@ -305,12 +307,12 @@ public enum SortingAlgorithms implements SortingAlgorithm
 							int index1 = jcur;
 							int index2 = jcur - gap;
 							
-							if(sa.compare(index1, index2) > 0)
+							if(va.compare(index1, index2) > 0)
 							{
 								break;
 							}
 							
-							sa.swap(index1, index2);
+							va.swap(index1, index2);
 							jcur -= gap;
 						}
 					}
@@ -318,7 +320,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				
 				gap /= 3;
 			}
-			INSERTION_SORT.sort(sa);
+			INSERTION_SORT.sort(va);
 		}
 	};
 	
@@ -336,12 +338,12 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		this.name = name;
 	}
 	
-	protected abstract void doSort(SortingArray sa) throws InterruptedException;
+	protected abstract void doSort(VisualArray va) throws InterruptedException;
 	
-	public final void sort(SortingArray sa) throws InterruptedException
+	public final void sort(VisualArray va) throws InterruptedException
 	{
-		doSort(sa);
-		sa.markFinished();
+		doSort(va);
+		va.markFinished();
 	}
 	
 	

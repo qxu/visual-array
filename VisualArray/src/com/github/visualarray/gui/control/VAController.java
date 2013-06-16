@@ -1,4 +1,4 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.gui.control;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +18,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.github.visualarray.gui.JNumberTextField;
+import com.github.visualarray.gui.components.VisualArray;
+import com.github.visualarray.run.VASorter;
 import com.github.visualarray.sort.ArrayBuilder;
 import com.github.visualarray.sort.ArrayConditions;
 import com.github.visualarray.sort.SortingAlgorithm;
@@ -61,10 +64,14 @@ public class VAController
 		List<? extends SortingAlgorithm> algs = Arrays.asList(SortingAlgorithms
 				.values());
 		
+		
+		
 		this.vaMap = new HashMap<>();
 		this.display = new VADisplay(cf);
 		this.sorter = new VASorter();
 		this.arrayBuilder = DEFAULT_ARRAY_BUILDER;
+		
+		rebuild();
 		
 		JPanel sp = new JPanel();
 		sp.setLayout(new BoxLayout(sp, BoxLayout.PAGE_AXIS));
@@ -259,10 +266,8 @@ public class VAController
 	
 	public void rebuild()
 	{
-		VASorter vas = this.sorter;
-		VADisplay vad = this.display;
-		vas.removeAll();
-		vad.removeAll();
+		this.sorter.removeAll();
+		this.display.removeAll();
 		
 		final double[] x = arrayBuilder.build(size);
 		
@@ -275,8 +280,8 @@ public class VAController
 			va.setThickness(thickness);
 			va.setPadding(padding);
 			
-			vas.addVisualArray(va, sa);
-			vad.addVisualArray(va, sa.toString());
+			this.sorter.addVisualArray(va, sa);
+			this.display.addVisualArray(va, sa.toString());
 		}
 	}
 }

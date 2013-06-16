@@ -1,4 +1,4 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.run;
 
 public class NanoSleeper
 {

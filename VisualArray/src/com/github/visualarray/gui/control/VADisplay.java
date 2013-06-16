@@ -1,10 +1,12 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.gui.control;
 
 import java.awt.Window;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JDialog;
+
+import com.github.visualarray.gui.components.VisualArray;
 
 public class VADisplay 
 {

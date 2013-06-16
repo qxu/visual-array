@@ -1,4 +1,4 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.run;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.github.visualarray.gui.components.VisualArray;
 import com.github.visualarray.sort.SortingAlgorithm;
 
 public class VASorter implements Runnable

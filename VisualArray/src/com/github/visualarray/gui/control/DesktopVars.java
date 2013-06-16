@@ -1,4 +1,4 @@
-package com.github.visualarray.gui;
+package com.github.visualarray.gui.control;
 
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
