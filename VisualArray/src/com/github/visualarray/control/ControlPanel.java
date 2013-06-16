@@ -1,15 +1,15 @@
-package com.github.visualarray.gui.control;
+package com.github.visualarray.control;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Window;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -19,14 +19,15 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import com.github.visualarray.gui.JNumberTextField;
+import com.github.visualarray.gui.components.DialogController;
 import com.github.visualarray.gui.components.VisualArray;
-import com.github.visualarray.run.VASorter;
+import com.github.visualarray.run.Sorter;
 import com.github.visualarray.sort.ArrayBuilder;
 import com.github.visualarray.sort.ArrayConditions;
 import com.github.visualarray.sort.SortingAlgorithm;
 import com.github.visualarray.sort.SortingAlgorithms;
 
-public class VAController
+public class ControlPanel extends JPanel
 {
 	private static final int DEFAULT_BUILDER_SIZE = 80;
 	private static final int DEFAULT_PADDING = 1;
@@ -35,11 +36,6 @@ public class VAController
 	private static final double DEFAULT_STEP_DELAY = 2.0;
 	
 	private static final ArrayBuilder DEFAULT_ARRAY_BUILDER = ArrayConditions.UNIQUELY_RANDOM;
-	
-	private static final String START_BUTTON_TEXT = "start";
-	private static final String PAUSE_BUTTON_TEXT = "pause";
-	private static final String RESUME_BUTTON_TEXT = "resume";
-	private static final String RESET_BUTTON_TEXT = "reset";
 	
 	//	private final JButton startButton;
 	//	private final JButton pauseButton;
@@ -51,107 +47,96 @@ public class VAController
 	private int padding;
 	private long stepDelayNanos;
 	
-	private final Map<VisualArray, SortingAlgorithm> vaMap;
-	private final VADisplay display;
-	private final VASorter sorter;
+	private final List<VisualArray> vaList; 
+	private final DialogController display;
+	private final Sorter sorter;
 	
-	private Thread sortingThread;
+	private final StartButton startButton;
+	private final StopButton stopButton;
+	private final ResetButton resetButton;
 	
-	public VAController()
+	public StartButton getStartButton()
 	{
-		JFrame cf = new JFrame("Visual Array");
-		
-		List<? extends SortingAlgorithm> algs = Arrays.asList(SortingAlgorithms
-				.values());
-		
-		
-		
-		this.vaMap = new HashMap<>();
-		this.display = new VADisplay(cf);
-		this.sorter = new VASorter();
+		return startButton;
+	}
+	
+	public StopButton getStopButton()
+	{
+		return stopButton;
+	}
+	
+	public ResetButton getResetButton()
+	{
+		return resetButton;
+	}
+	
+	public Sorter getSorter()
+	{
+		return sorter;
+	}
+	
+	public void start()
+	{
+		sorter.start();
+	}
+	
+	public void pause()
+	{
+		sorter.pause();
+	}
+	
+	public void resume()
+	{
+		sorter.resume();
+	}
+	
+	public void stop()
+	{
+		sorter.stop();
+	}
+	
+	public void reset()
+	{
+		stop();
+		for(VisualArray va : vaList)
+		{
+			va.reset();
+		}
+	}
+	
+	public ControlPanel(Window owner)
+	{
+		// TODO temp
+		List<SortingAlgorithms> algs = Arrays.asList(SortingAlgorithms.values());
+		vaList = new ArrayList<>(algs.size());
+		display = new DialogController(owner);
+		double[] x = DEFAULT_ARRAY_BUILDER.build(DEFAULT_BUILDER_SIZE); 
+		for(SortingAlgorithm algorithm : algs)
+		{
+			VisualArray va = new VisualArray(algorithm, x, DEFUALT_THICKNESS, DEFAULT_PADDING);
+			vaList.add(va);
+			display.addVisualArray(va, algorithm.toString());
+		}
+		sorter = new Sorter(vaList);
+		// end temp
 		this.arrayBuilder = DEFAULT_ARRAY_BUILDER;
 		
-		rebuild();
-		
-		JPanel sp = new JPanel();
-		sp.setLayout(new BoxLayout(sp, BoxLayout.PAGE_AXIS));
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
 		/*
 		 * Control buttons
 		 */
 		JPanel controlButtons = new JPanel();
 		
-		final JButton start = new JButton(START_BUTTON_TEXT);
-		final JButton pause = new JButton(PAUSE_BUTTON_TEXT);
-		final JButton resume = new JButton(RESUME_BUTTON_TEXT);
-		final JButton reset = new JButton(RESET_BUTTON_TEXT);
-		pause.setEnabled(false);
-		resume.setEnabled(false);
-		reset.setEnabled(false);
-		start.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				start.setEnabled(false);
-				Thread t = new Thread(sorter, "Visual Array Sorter");
-				sortingThread = t;
-				t.start();
-				pause.setEnabled(true);
-			}
-		});
-		pause.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				pause.setEnabled(false);
-				Thread t = sortingThread;
-				t.interrupt();
-				resume.setEnabled(true);
-				reset.setEnabled(true);
-			}
-		});
-		resume.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				resume.setEnabled(false);
-				reset.setEnabled(false);
-				Thread t = sortingThread;
-				synchronized(t)
-				{
-					t.notifyAll();
-				}
-				pause.setEnabled(true);
-			}
-		});
-		reset.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				reset.setEnabled(false);
-				resume.setEnabled(false);
-				
-				Thread t = sortingThread;
-				t.interrupt();
-				sortingThread = null;
-				
-				for(VisualArray va : vaMap.keySet())
-				{
-					va.reset();
-				}
-				
-				start.setEnabled(true);
-			}
-		});
+		startButton = new StartButton(this);
+		stopButton = new StopButton(this);
+		resetButton = new ResetButton(this);
 		
-		controlButtons.add(start);
-		controlButtons.add(pause);
-		controlButtons.add(resume);
-		controlButtons.add(reset);
+		controlButtons.add(startButton);
+		controlButtons.add(stopButton);
+		controlButtons.add(resetButton);
+		
+		add(controlButtons);
 		
 		/*
 		 * Config Panel
@@ -245,17 +230,25 @@ public class VAController
 		config.add(delayPanel);
 		config.add(sizePanel);
 		
-		sp.add(controlButtons);
-		sp.add(config);
+		add(config);
 		
-		cf.add(sp);
-		cf.pack();
-		int cfXPos = DesktopVars.DESKTOP_X_MAX - cf.getWidth();
-		int cfYPos = DesktopVars.DESKTOP_Y_MAX - cf.getHeight();
-		cf.setLocation(cfXPos, cfYPos);
-		cf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		cf.setVisible(true);
+		JPanel checkBoxPanel = new JPanel();
+		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.PAGE_AXIS));
+		/*
+		 * check boxes
+		 */
+		for(final SortingAlgorithm alg : algs)
+		{
+			JCheckBox checkBox = new JCheckBox(alg.toString());
+			checkBoxPanel.add(checkBox);
+		}
+		checkBoxPanel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+		checkBoxPanel.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
+		
+		add(checkBoxPanel);
+		
+		
 	}
 	
 	public void setStepDelay(double millis)
@@ -269,19 +262,19 @@ public class VAController
 		this.sorter.removeAll();
 		this.display.removeAll();
 		
-		final double[] x = arrayBuilder.build(size);
-		
-		for(Map.Entry<VisualArray, SortingAlgorithm> entry : vaMap.entrySet())
+		for(VisualArray va : vaList)
 		{
-			VisualArray va = entry.getKey();
-			
-			SortingAlgorithm sa = entry.getValue();
-			
 			va.setThickness(thickness);
 			va.setPadding(padding);
 			
-			this.sorter.addVisualArray(va, sa);
-			this.display.addVisualArray(va, sa.toString());
+			va.reset();
+			
+			this.sorter.addVisualArray(va);
+			this.display.addVisualArray(va, va.getSortingAlgorithm().toString());
 		}
 	}
+	
+	
+	
+	private static final long serialVersionUID = 3517653636753009689L;
 }

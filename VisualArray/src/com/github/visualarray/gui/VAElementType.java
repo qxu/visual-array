@@ -6,6 +6,4 @@ public enum VAElementType
 	COMPARE,
 	SWAP,
 	SORTED;
-	
-	
 }

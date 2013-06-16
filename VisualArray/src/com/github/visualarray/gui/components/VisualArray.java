@@ -6,11 +6,14 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JComponent;
 
+import com.github.visualarray.sort.SortingAlgorithm;
 
-public class VisualArray extends JComponent
+
+public class VisualArray extends JComponent implements Runnable
 {
 	private static final double ASPECT_RATIO = 1;
 
@@ -26,8 +29,16 @@ public class VisualArray extends JComponent
 	private volatile int sortedIndexCount;
 	private volatile int stepWait;
 	private final Object stepLock = new Object();
-
-	public VisualArray(double[] x, int thickness, int padding)
+	
+	private SortingAlgorithm sortingAlgorithm;
+	
+	private ReentrantLock runningLock = new ReentrantLock();
+	private volatile Thread sortingThread = null;
+	
+	private int stepsTriggered = 0;
+	private int stepsUsed = 0;
+	
+	public VisualArray(SortingAlgorithm alg, double[] x, int thickness, int padding)
 	{
 		if(x == null)
 			throw new NullPointerException();
@@ -52,6 +63,8 @@ public class VisualArray extends JComponent
 			elem[i] = new VASortingLine(lineLength, unsorted);
 		}
 
+		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
+		
 		Dimension size = new Dimension(maxLength, len * (thickness + padding));
 		setPreferredSize(size);
 		setSize(size);
@@ -62,11 +75,34 @@ public class VisualArray extends JComponent
 		this.padding = padding;
 		this.sortedIndexCount = 0;
 		this.stepWait = 0;
-
-		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
-
+		this.sortingAlgorithm = alg;
 	}
-
+	
+	@Override
+	public void run()
+	{
+		if(runningLock.tryLock())
+		{
+			sortingThread = Thread.currentThread();
+			
+			SortingAlgorithm sorter = getSortingAlgorithm();
+			try
+			{
+				sorter.sort(this);
+			}
+			catch(InterruptedException e)
+			{
+			}
+			
+			sortingThread = null;
+			runningLock.unlock();
+		}
+		else
+		{
+			throw new IllegalStateException("Already running");
+		}
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g)
 	{
@@ -75,7 +111,7 @@ public class VisualArray extends JComponent
 		int thickness = getThickness();
 		int dy = thickness + getPadding();
 
-		int length = length();
+		int length = getLength();
 		for(int i = 0; i < length; ++i)
 		{
 			VASortingLine line = elements[i];
@@ -83,7 +119,7 @@ public class VisualArray extends JComponent
 			g2d.fillRect(0, i * dy, line.length, thickness);
 		}
 
-		String debug = sortedIndexCount + "/" + length();
+		String debug = stepsUsed + "-" + stepsTriggered + " " + sortedIndexCount + "/" + getLength();
 		FontMetrics fm = getFontMetrics(g2d.getFont());
 		int strWidth = fm.stringWidth(debug);
 		int strHeight = fm.getHeight();
@@ -166,10 +202,7 @@ public class VisualArray extends JComponent
 
 	public boolean isSorted()
 	{
-		synchronized(this.stepLock)
-		{
-			return this.sortedIndexCount == length();
-		}
+		return this.sortedIndexCount == getLength();
 	}
 
 	public void markFinished()
@@ -182,33 +215,40 @@ public class VisualArray extends JComponent
 		}
 	}
 
-	public int length()
+	public int getLength()
 	{
 		return this.elements.length;
+	}
+	
+	public boolean isRunning()
+	{
+		return sortingThread != null;
 	}
 
 	public void step() throws InterruptedException
 	{
-		synchronized(this.stepLock)
+		++stepsTriggered;
+		if(isRunning())
 		{
-			if(isSorted())
-				return;
-			if(this.stepWait <= 0)
+			synchronized(this.stepLock)
 			{
+				if(this.stepWait <= 0)
+				{
+					this.stepLock.wait();
+				}
+	
+				if(isSorted())
+					return;
+	
+				--this.stepWait;
+	
+				if(this.stepWait <= 0)
+				{
+					this.stepLock.notifyAll();
+				}
+	
 				this.stepLock.wait();
 			}
-
-			if(isSorted())
-				return;
-
-			--this.stepWait;
-
-			if(this.stepWait <= 0)
-			{
-				this.stepLock.notifyAll();
-			}
-
-			this.stepLock.wait();
 		}
 	}
 
@@ -228,12 +268,21 @@ public class VisualArray extends JComponent
 
 			this.stepLock.wait();
 
+			stepsUsed += steps;
 			this.stepLock.notifyAll();
 		}
+	}
+	
+	private void checkThreadAccess()
+	{
+		if(Thread.currentThread() != sortingThread)
+			throw new IllegalStateException("Not called from sorting thread");
 	}
 
 	public void swap(int index1, int index2) throws InterruptedException
 	{
+		checkThreadAccess();
+		
 		VASortingLine primary = elements[index1];
 		VASortingLine secondary = elements[index2];
 
@@ -260,6 +309,8 @@ public class VisualArray extends JComponent
 
 	public int compare(int index1, int index2) throws InterruptedException
 	{
+		checkThreadAccess();
+		
 		VASortingLine primary = elements[index1];
 		VASortingLine secondary = elements[index2];
 
@@ -304,7 +355,7 @@ public class VisualArray extends JComponent
 
 	public void reset()
 	{
-		int len = length();
+		int len = getLength();
 		int scaleFactor = (int)Math.round((thickness * len + padding
 				* (len - 1))
 				* ASPECT_RATIO);
@@ -324,9 +375,19 @@ public class VisualArray extends JComponent
 		repaint();
 	}
 
+	public void setSortingAlgorithm(SortingAlgorithm alg)
+	{
+		this.sortingAlgorithm = alg;
+	}
+	
+	public SortingAlgorithm getSortingAlgorithm()
+	{
+		return sortingAlgorithm;
+	}
+
 	public String toString()
 	{
-		return "sorted:" + sortedIndexCount + "/" + length();
+		return "sorted:" + sortedIndexCount + "/" + getLength();
 	}
 
 	private static class VASortingLine

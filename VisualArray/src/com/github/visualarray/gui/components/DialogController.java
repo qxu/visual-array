@@ -1,51 +1,53 @@
-package com.github.visualarray.gui.control;
+package com.github.visualarray.gui.components;
 
 import java.awt.Window;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import javax.swing.JDialog;
 
-import com.github.visualarray.gui.components.VisualArray;
 
-public class VADisplay 
+public class DialogController 
 {
 	private final Window owner;
-	private Map<VisualArray, JDialog> vaHolders;
 	
-	public VADisplay(Window owner)
+	private LinkedHashMap<VisualArray, VisualArrayDialog> vaDialogs;
+	
+	public DialogController(Window owner)
 	{
 		this.owner = owner;
-		this.vaHolders = new HashMap<>();
+		this.vaDialogs = new LinkedHashMap<>();
 	}
 	
 	public void addVisualArray(VisualArray va, String title)
 	{
-		if(vaHolders.containsKey(va))
+		if(vaDialogs.containsKey(va))
 			throw new IllegalStateException();
 		
-		JDialog dialog = new JDialog(owner, title);
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.add(va);
-		vaHolders.put(va, dialog);
+		VisualArrayDialog dialog = new VisualArrayDialog(owner, va);
+		dialog.setDefaultCloseOperation(VisualArrayDialog.DISPOSE_ON_CLOSE);
+		dialog.setResizable(false);
+		dialog.pack();
+		vaDialogs.put(va, dialog);
+		
 		updateLocations();
 	}
 	
 	public void removeVisualArray(VisualArray va)
 	{
-		JDialog dialog = vaHolders.get(va);
+		JDialog dialog = vaDialogs.get(va);
 		dialog.dispose();
-		vaHolders.remove(va);
+		vaDialogs.remove(va);
+		
 		updateLocations();
 	}
 	
 	public void removeAll()
 	{
-		for(JDialog dialog : vaHolders.values())
+		for(JDialog dialog : vaDialogs.values())
 		{
 			dialog.dispose();
 		}
-		vaHolders.clear();
+		vaDialogs.clear();
 	}
 	
 	private void updateLocations()
@@ -53,8 +55,9 @@ public class VADisplay
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(JDialog dialog : vaHolders.values())
+		for(JDialog dialog : vaDialogs.values())
 		{
+			dialog.setResizable(false);
 			dialog.pack();
 			
 			int width = dialog.getWidth();

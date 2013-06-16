@@ -11,7 +11,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int i = va.length();
+			int i = va.getLength();
 			
 			while(i > 0)
 			{
@@ -42,7 +42,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			quickSort(va, 0, va.length() - 1);
+			quickSort(va, 0, va.getLength() - 1);
 		}
 		
 		private void quickSort(VisualArray va, int lower, int upper) throws InterruptedException
@@ -90,7 +90,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int length = va.length();
+			int length = va.getLength();
 			va.markSortedIndex(0);
 			for(int i = 1; i < length; ++i)
 			{
@@ -118,7 +118,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			for(int i = va.length() - 1; i >= 0; --i)
+			for(int i = va.getLength() - 1; i >= 0; --i)
 			{
 				int maxIndex = i;
 				for(int j = i - 1; j >= 0; --j)
@@ -151,7 +151,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 			if(bound < 1)
 				throw new IllegalArgumentException("Illegal bound " + bound);
 			
-			int length = va.length();
+			int length = va.getLength();
 			int gap = length;
 			
 			while(gap > bound)
@@ -190,7 +190,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int length = va.length();
+			int length = va.getLength();
 			int start = (length - 2) / 2;
 			while(start >= 0)
 			{
@@ -243,7 +243,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
 			int first = 0;
-			int last = va.length() - 1;
+			int last = va.getLength() - 1;
 			while(first <= last)
 			{
 				int shift = first;
@@ -288,7 +288,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 		@Override
 		protected void doSort(VisualArray va) throws InterruptedException
 		{
-			int len = va.length();
+			int len = va.getLength();
 			int gap = 1;
 			while(gap < len - 1)
 			{
