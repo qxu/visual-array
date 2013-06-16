@@ -1,5 +1,6 @@
 package com.github.visualarray.control;
 
+import java.awt.Component;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import com.github.visualarray.control.StartButton.State;
 import com.github.visualarray.gui.components.DialogController;
@@ -87,7 +89,7 @@ public class ControlPanel extends JPanel
 
 		checkBoxPanel.add(showAllCheckBox);
 		
-		checkBoxPanel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+		checkBoxPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		add(checkBoxPanel);
 
 		/*
@@ -176,7 +178,7 @@ public class ControlPanel extends JPanel
 		if(!visualArrayDialogMap.containsKey(va))
 		{
 			VisualArrayDialog dialog = new VisualArrayDialog(owner, va);
-			dialog.setDefaultCloseOperation(VisualArrayDialog.DISPOSE_ON_CLOSE);
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			dialog.setResizable(false);
 			dialog.pack();
 			dialogController.addVisualArrayDialog(dialog,

@@ -340,6 +340,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 	
 	protected abstract void doSort(VisualArray va) throws InterruptedException;
 	
+	@Override
 	public final void sort(VisualArray va) throws InterruptedException
 	{
 		doSort(va);

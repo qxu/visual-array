@@ -373,6 +373,7 @@ public class VisualArray extends JComponent implements Runnable
 		return sortingAlgorithm;
 	}
 
+	@Override
 	public String toString()
 	{
 		return "sorted:" + sortedIndexCount + "/" + getLength();
