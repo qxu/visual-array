@@ -18,20 +18,6 @@ public enum ArrayConditions implements ArrayBuilder
 			
 			return values;
 		}
-		
-		@Override
-		public int[] build(int size, int maxLength)
-		{
-			int[] values = new int[size];
-			double scaleFactor = (double)maxLength / size;
-			
-			for(int i = 0; i < size; ++i)
-			{
-				values[i] = (int)(scaleFactor * (i + 1));
-			}
-			
-			return values;
-		}
 	},
 	COMPLETELY_RANDOM
 	{
@@ -44,20 +30,6 @@ public enum ArrayConditions implements ArrayBuilder
 			for(int i = 0; i < size; ++i)
 			{
 				values[i] = 1.0 - rand.nextDouble();
-			}
-			
-			return values;
-		}
-		
-		@Override
-		public int[] build(int size, int maxLength)
-		{
-			Random rand = new Random();
-			int[] values = new int[size];
-			
-			for(int i = 0; i < size; ++i)
-			{
-				values[i] = rand.nextInt(maxLength);
 			}
 			
 			return values;
@@ -81,23 +53,6 @@ public enum ArrayConditions implements ArrayBuilder
 			
 			return buf;
 		}
-		
-		@Override
-		public int[] build(int size, int maxLength)
-		{
-			Random rand = new Random();
-			int[] buf = SORTED.build(size, maxLength);
-			
-			for(int i = size - 1; i > 0; --i)
-			{
-				int swapIndex = rand.nextInt(i + 1);
-				int tmp = buf[i];
-				buf[i] = buf[swapIndex];
-				buf[swapIndex] = tmp;
-			}
-			
-			return buf;
-		}
 	},
 	REVERSED
 	{
@@ -109,20 +64,6 @@ public enum ArrayConditions implements ArrayBuilder
 			for(int i = 0; i < size; ++i)
 			{
 				values[i] = (double)(size - i) / size;
-			}
-			
-			return values;
-		}
-		
-		@Override
-		public int[] build(int size, int maxLength)
-		{
-			int[] values = new int[size];
-			double scaleFactor = (double)maxLength / size;
-			
-			for(int i = 0; i < size; ++i)
-			{
-				values[i] = (int)(scaleFactor * (size - i));
 			}
 			
 			return values;

@@ -38,44 +38,18 @@ public class VisualArray extends JComponent implements Runnable
 	private int stepsTriggered = 0;
 	private int stepsUsed = 0;
 	
-	public VisualArray(SortingAlgorithm alg, double[] x, int thickness, int padding)
+	public VisualArray(SortingAlgorithm alg, double[] values, int thickness, int padding)
 	{
-		if(x == null)
+		if(values == null)
 			throw new NullPointerException();
 
-		double[] values = x.clone();
-		int len = values.length;
-
-		int scaleFactor = (int)Math.round(
-				(thickness * len + padding * (len - 1)) * ASPECT_RATIO);
-
-		int maxLength = 0;
-		VASortingLine[] elem = new VASortingLine[len];
-		final Color unsorted = VAColors.getUnSorted();
-		for(int i = 0; i < len; ++i)
-		{
-			int lineLength = (int)Math.round(values[i] * scaleFactor);
-			if(lineLength > maxLength)
-			{
-				maxLength = lineLength;
-			}
-
-			elem[i] = new VASortingLine(lineLength, unsorted);
-		}
-
-		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
-		
-		Dimension size = new Dimension(maxLength, len * (thickness + padding));
-		setPreferredSize(size);
-		setSize(size);
-
-		this.initialValues = values;
-		this.elements = elem;
 		this.thickness = thickness;
 		this.padding = padding;
-		this.sortedIndexCount = 0;
-		this.stepWait = 0;
 		this.sortingAlgorithm = alg;
+		this.initialValues = values.clone();
+		reset();
+
+		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
 	}
 	
 	@Override
@@ -92,6 +66,7 @@ public class VisualArray extends JComponent implements Runnable
 			}
 			catch(InterruptedException e)
 			{
+				System.out.println(sorter + " interrputed");
 			}
 			
 			sortingThread = null;
@@ -317,8 +292,8 @@ public class VisualArray extends JComponent implements Runnable
 		Color priColor = primary.color;
 		Color secColor = secondary.color;
 
-		primary.color = VAColors.getPrimarySwap();
-		secondary.color = VAColors.getSecondarySwap();
+		primary.color = VAColors.getPrimaryCompare();
+		secondary.color = VAColors.getSecondaryCompare();
 
 		repaint();
 
@@ -355,26 +330,36 @@ public class VisualArray extends JComponent implements Runnable
 
 	public void reset()
 	{
-		int len = getLength();
-		int scaleFactor = (int)Math.round((thickness * len + padding
-				* (len - 1))
-				* ASPECT_RATIO);
-		double[] values = this.initialValues;
-		int length = values.length;
-		this.elements = new VASortingLine[length];
-		VASortingLine[] elements = this.elements;
+		int len = initialValues.length;
+		int scaleFactor = (int)Math.round(
+				(thickness * len + padding * (len - 1)) * ASPECT_RATIO);
+		this.elements = new VASortingLine[len];
+		int maxLength = 0;
 		final Color unsorted = VAColors.getUnSorted();
-		for(int i = 0; i < length; ++i)
+		for(int i = 0; i < len; ++i)
 		{
-			int lineLength = (int)Math.round(values[i] * scaleFactor);
-
-			elements[i] = new VASortingLine(lineLength, unsorted);
+			int lineLength = (int)Math.round(initialValues[i] * scaleFactor);
+			if(lineLength > maxLength)
+			{
+				maxLength = lineLength;
+			}
+			this.elements[i] = new VASortingLine(lineLength, unsorted);
 		}
+		
 		this.sortedIndexCount = 0;
 		this.stepWait = 0;
+		
+		Dimension size = new Dimension(maxLength, len * (thickness + padding));
+		setPreferredSize(size);
+		setSize(size);
 		repaint();
 	}
 
+	public void setInitialValues(double[] values)
+	{
+		this.initialValues = values;
+	}
+	
 	public void setSortingAlgorithm(SortingAlgorithm alg)
 	{
 		this.sortingAlgorithm = alg;

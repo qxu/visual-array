@@ -3,9 +3,7 @@ package com.github.visualarray.control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-
-public class StartButton extends JButton implements ActionListener
+public class StartButton extends MultiTextButton implements ActionListener
 {
 	private final ControlPanel controlPanel;
 	private State state;
@@ -13,6 +11,10 @@ public class StartButton extends JButton implements ActionListener
 	public StartButton(ControlPanel controlPanel)
 	{
 		this.controlPanel = controlPanel;
+		for(State state : State.values())
+		{
+			addText(state.toString());
+		}
 		setState(State.START);
 		addActionListener(this);
 	}
@@ -25,6 +27,8 @@ public class StartButton extends JButton implements ActionListener
 		case START:
 			controlPanel.start();
 			setState(State.PAUSE);
+			controlPanel.getStopButton().setEnabled(true);
+			controlPanel.getResetButton().setEnabled(true);
 			break;
 		case PAUSE:
 			controlPanel.pause();

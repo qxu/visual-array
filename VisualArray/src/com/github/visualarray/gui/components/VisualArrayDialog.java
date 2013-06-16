@@ -12,7 +12,7 @@ public class VisualArrayDialog extends JDialog
 	
 	public VisualArrayDialog(Window owner, VisualArray va)
 	{
-		super(owner);
+		super(owner, va.getSortingAlgorithm().toString());
 		setLayout(new BorderLayout());
 		
 		this.component = va;

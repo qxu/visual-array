@@ -1,4 +1,4 @@
-package com.github.visualarray.run;
+package com.github.visualarray.control;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,21 +16,23 @@ import com.github.visualarray.gui.components.VisualArray;
 public class Sorter implements Runnable
 {
 	private Set<VisualArray> vaSet;
-	private long stepDelayNanos = TimeUnit.NANOSECONDS.convert(20, TimeUnit.MILLISECONDS);
+	private long stepDelayNanos;
 	private NanoSleeper sleeper = new NanoSleeper();
 
 	private ReentrantLock runningLock = new ReentrantLock();
 	private volatile boolean stopRequested = false;
 	private ReentrantLock pauseLock = new ReentrantLock();
 	
-	public Sorter()
+	public Sorter(long stepDelayNanos)
 	{
 		this.vaSet = new HashSet<>();
+		setStepDelay(stepDelayNanos);
 	}
 
-	public Sorter(Collection<? extends VisualArray> vaCollection)
+	public Sorter(long stepDelayNanos, Collection<VisualArray> vaCollection)
 	{
 		this.vaSet = new HashSet<>(vaCollection);
+		setStepDelay(stepDelayNanos);
 	}
 
 	public void addVisualArray(VisualArray va)
@@ -54,6 +56,7 @@ public class Sorter implements Runnable
 			throw new IllegalArgumentException("Negative delay");
 
 		this.stepDelayNanos = nanos;
+		sleeper.interrupt();
 	}
 
 	public void pause()
@@ -73,7 +76,10 @@ public class Sorter implements Runnable
 	
 	public void stop()
 	{
-		stopRequested = true;
+		if(runningLock.isLocked())
+		{
+			stopRequested = true;
+		}
 	}
 	
 	private boolean interruptCheck()
@@ -83,6 +89,7 @@ public class Sorter implements Runnable
 			pauseLock.lock();
 			pauseLock.unlock();
 		}
+		
 		return stopRequested;
 	}
 	
@@ -91,6 +98,7 @@ public class Sorter implements Runnable
 	{
 		if(runningLock.tryLock())
 		{
+			stopRequested = false;
 			List<VisualArray> runningVas = new ArrayList<>(vaSet);
 			ExecutorService vaSorter = Executors.newFixedThreadPool(runningVas.size());
 			for(VisualArray va : runningVas)
@@ -115,6 +123,15 @@ public class Sorter implements Runnable
 						if(interruptCheck())
 						{
 							sleeper.reset();
+							vaSorter.shutdownNow();
+							try
+							{
+								vaSorter.awaitTermination(2000, TimeUnit.MILLISECONDS);
+							}
+							catch(InterruptedException e1)
+							{
+								e1.printStackTrace();
+							}
 							runningLock.unlock();
 							return;
 						}
@@ -140,9 +157,18 @@ public class Sorter implements Runnable
 				if(interruptCheck())
 				{
 					sleeper.reset();
+					vaSorter.shutdownNow();
+					try
+					{
+						vaSorter.awaitTermination(2000, TimeUnit.MILLISECONDS);
+					}
+					catch(InterruptedException e1)
+					{
+						e1.printStackTrace();
+					}
 					runningLock.unlock();
 					return;
-				}
+				}	
 			}
 		}
 		else

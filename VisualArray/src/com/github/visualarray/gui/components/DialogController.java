@@ -10,44 +10,49 @@ public class DialogController
 {
 	private final Window owner;
 	
-	private LinkedHashMap<VisualArray, VisualArrayDialog> vaDialogs;
+	private LinkedHashMap<VisualArray, VisualArrayDialog> vaDialogMap;
 	
 	public DialogController(Window owner)
 	{
 		this.owner = owner;
-		this.vaDialogs = new LinkedHashMap<>();
+		this.vaDialogMap = new LinkedHashMap<>();
 	}
 	
 	public void addVisualArray(VisualArray va, String title)
 	{
-		if(vaDialogs.containsKey(va))
+		if(vaDialogMap.containsKey(va))
 			throw new IllegalStateException();
 		
 		VisualArrayDialog dialog = new VisualArrayDialog(owner, va);
 		dialog.setDefaultCloseOperation(VisualArrayDialog.DISPOSE_ON_CLOSE);
 		dialog.setResizable(false);
 		dialog.pack();
-		vaDialogs.put(va, dialog);
+		vaDialogMap.put(va, dialog);
 		
 		updateLocations();
 	}
 	
 	public void removeVisualArray(VisualArray va)
 	{
-		JDialog dialog = vaDialogs.get(va);
+		JDialog dialog = vaDialogMap.get(va);
 		dialog.dispose();
-		vaDialogs.remove(va);
+		vaDialogMap.remove(va);
 		
 		updateLocations();
 	}
 	
 	public void removeAll()
 	{
-		for(JDialog dialog : vaDialogs.values())
+		for(JDialog dialog : vaDialogMap.values())
 		{
 			dialog.dispose();
 		}
-		vaDialogs.clear();
+		vaDialogMap.clear();
+	}
+	
+	public void revalidate()
+	{
+		updateLocations();
 	}
 	
 	private void updateLocations()
@@ -55,7 +60,7 @@ public class DialogController
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(JDialog dialog : vaDialogs.values())
+		for(JDialog dialog : vaDialogMap.values())
 		{
 			dialog.setResizable(false);
 			dialog.pack();
@@ -82,7 +87,10 @@ public class DialogController
 				maxHeight = height;
 			}
 			
-			dialog.setVisible(true);
+			if(!dialog.isVisible())
+			{
+				dialog.setVisible(true);
+			}
 		}
 	}
 }
