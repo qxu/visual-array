@@ -22,8 +22,8 @@ import com.github.visualarray.control.ControlPanel;
 public class VisualArrayWindow extends JWindow implements MouseListener,
 		MouseMotionListener
 {
-	private static final Color BORDER_COLOR = Color.DARK_GRAY;
-	private static final Color LABEL_BACKGROUND_COLOR = null;
+	private static final Color BORDER_COLOR = null;
+	private static final Color LABEL_BACKGROUND_COLOR = BORDER_COLOR;
 	private static final Color LABEL_TEXT_COLOR = Color.BLACK;
 	
 	private ControlPanel panel;
@@ -42,7 +42,7 @@ public class VisualArrayWindow extends JWindow implements MouseListener,
 
 		setLayout(new BorderLayout());
 		JLabel label = new JLabel(va.getSortingAlgorithm().toString());
-		label.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+		label.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
 		label.setForeground(LABEL_TEXT_COLOR);
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setAlignmentX(Component.CENTER_ALIGNMENT);

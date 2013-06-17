@@ -46,6 +46,7 @@ public class Freedom
 		}
 		panel = new ControlPanel(frame);
 		frame.add(panel);
+		frame.setResizable(false);
 		frame.pack();
 		int cfXPos = DesktopVars.DESKTOP_X_MAX - frame.getWidth();
 		int cfYPos = DesktopVars.DESKTOP_Y_MAX - frame.getHeight();

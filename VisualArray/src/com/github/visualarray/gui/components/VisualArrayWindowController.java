@@ -78,6 +78,7 @@ public class VisualArrayWindowController
 		{
 			window.setVisible(b);
 		}
+		controlPanel.getOwner().toFront();
 	}
 	
 	public void dispose()
@@ -91,12 +92,11 @@ public class VisualArrayWindowController
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(VisualArrayWindow dialog : vaWindowMap.values())
+		for(VisualArrayWindow window : vaWindowMap.values())
 		{
-			// dialog.setResizable(false);
-			dialog.pack();
+			window.pack();
 
-			int width = dialog.getWidth();
+			int width = window.getWidth();
 			int nextX = x + width;
 
 			if(nextX > DesktopVars.DESKTOP_X_MAX)
@@ -110,17 +110,18 @@ public class VisualArrayWindowController
 				maxHeight = 0;
 			}
 
-			dialog.setLocation(x, y);
+			window.setLocation(x, y);
 			x = nextX;
-			int height = dialog.getHeight();
+			int height = window.getHeight();
 			if(height > maxHeight)
 			{
 				maxHeight = height;
 			}
 
-			if(!dialog.isVisible())
+			if(!window.isVisible())
 			{
-				dialog.setVisible(true);
+				window.setVisible(true);
+				controlPanel.getOwner().toFront();
 			}
 		}
 	}
