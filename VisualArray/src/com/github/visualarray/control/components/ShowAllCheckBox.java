@@ -25,7 +25,7 @@ public class ShowAllCheckBox extends JCheckBox implements ActionListener
 	{
 		boolean shouldBeSelected = true;
 		for(ShowVisualArrayCheckBox checkBox : controlPanel
-				.getVisualArrayCheckBoxMap().values())
+				.getCheckBoxMap().values())
 		{
 			if(!checkBox.isSelected())
 			{
@@ -41,7 +41,7 @@ public class ShowAllCheckBox extends JCheckBox implements ActionListener
 		if(isSelected())
 		{
 			for(Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
-					.getVisualArrayCheckBoxMap().entrySet())
+					.getCheckBoxMap().entrySet())
 			{
 				controlPanel.showVisualArray(entry.getKey());
 				entry.getValue().setSelected(true);
@@ -50,12 +50,13 @@ public class ShowAllCheckBox extends JCheckBox implements ActionListener
 		else
 		{
 			for(Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
-					.getVisualArrayCheckBoxMap().entrySet())
+					.getCheckBoxMap().entrySet())
 			{
 				controlPanel.hideVisualArray(entry.getKey());
 				entry.getValue().setSelected(false);
 			}
 		}
+		controlPanel.log(this, e.getActionCommand() + (isSelected() ? " selected" : " deselected"));
 	}
 
 	private static final long serialVersionUID = 866229596665325648L;

@@ -65,8 +65,7 @@ public class VisualArray extends JComponent implements Runnable
 				sorter.sort(this);
 			}
 			catch(InterruptedException e)
-			{
-				System.out.println(sorter + " interrputed");
+			{ // stop requested
 			}
 			
 			sortingThread = null;

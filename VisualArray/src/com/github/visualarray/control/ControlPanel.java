@@ -12,21 +12,21 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import com.github.visualarray.control.components.DelayPanel;
+import com.github.visualarray.control.components.HideVisualArrayOnClose;
 import com.github.visualarray.control.components.PaddingPanel;
 import com.github.visualarray.control.components.ResetButton;
 import com.github.visualarray.control.components.ShowAllCheckBox;
 import com.github.visualarray.control.components.ShowVisualArrayCheckBox;
 import com.github.visualarray.control.components.SizePanel;
 import com.github.visualarray.control.components.StartButton;
+import com.github.visualarray.control.components.StartButton.State;
 import com.github.visualarray.control.components.StopButton;
 import com.github.visualarray.control.components.ThicknessPanel;
-import com.github.visualarray.control.components.StartButton.State;
-import com.github.visualarray.gui.components.DialogController;
 import com.github.visualarray.gui.components.VisualArray;
-import com.github.visualarray.gui.components.VisualArrayDialog;
+import com.github.visualarray.gui.components.VisualArrayWindow;
+import com.github.visualarray.gui.components.VisualArrayWindowController;
 import com.github.visualarray.sort.ArrayBuilder;
 import com.github.visualarray.sort.ArrayConditions;
 import com.github.visualarray.sort.SortingAlgorithm;
@@ -43,7 +43,7 @@ public class ControlPanel extends JPanel
 	private static final ArrayBuilder DEFAULT_ARRAY_BUILDER = ArrayConditions.UNIQUELY_RANDOM;
 
 	private final List<VisualArray> vaList;
-	private final DialogController dialogController;
+	private final VisualArrayWindowController dialogController;
 	private ArrayBuilder arrayBuilder;
 	private final Sorter sorter;
 
@@ -56,7 +56,7 @@ public class ControlPanel extends JPanel
 
 	private Window owner;
 
-	private Map<VisualArray, VisualArrayDialog> visualArrayDialogMap = new HashMap<>();
+	private Map<VisualArray, VisualArrayWindow> visualArrayDialogMap = new HashMap<>();
 
 	public ControlPanel(Window owner)
 	{
@@ -65,7 +65,7 @@ public class ControlPanel extends JPanel
 
 		this.owner = owner;
 		this.vaList = new ArrayList<>(algs.size());
-		this.dialogController = new DialogController();
+		this.dialogController = new VisualArrayWindowController();
 		this.arrayBuilder = DEFAULT_ARRAY_BUILDER;
 		double[] x = arrayBuilder.build(DEFAULT_BUILDER_SIZE);
 
@@ -173,7 +173,7 @@ public class ControlPanel extends JPanel
 		{
 			va.reset();
 		}
-		dialogController.revalidate();
+		dialogController.update();
 		startButton.setEnabled(true);
 	}
 
@@ -186,32 +186,67 @@ public class ControlPanel extends JPanel
 	{
 		if(!visualArrayDialogMap.containsKey(va))
 		{
-			VisualArrayDialog dialog = new VisualArrayDialog(owner, va);
-			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-			dialog.setResizable(false);
-			dialog.pack();
-			dialogController.addVisualArrayDialog(dialog,
+			VisualArrayWindow window = new VisualArrayWindow(this, va);
+			
+//			window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+//			window.setUndecorated(true);
+//			window.setResizable(false);
+			
+			window.pack();
+//			window.setFocusableWindowState(false);
+			window.addWindowListener(new HideVisualArrayOnClose(this, va));
+			dialogController.addWindow(window,
 					va.getSortingAlgorithm().toString());
-			visualArrayDialogMap.put(va, dialog);
+			visualArrayDialogMap.put(va, window);
+		}
+	}
+	
+	public void showAllVisualArrays()
+	{
+		for(VisualArray va : vaList)
+		{
+			showVisualArray(va);
 		}
 	}
 
 	public void hideVisualArray(VisualArray va)
 	{
-		VisualArrayDialog dialog = visualArrayDialogMap.remove(va);
+		VisualArrayWindow dialog = visualArrayDialogMap.remove(va);
 		if(dialog != null)
 		{
-			dialogController.removeVisualArrayDialog(dialog);
+			dialogController.removeWindow(dialog);
+			dialog.setVisible(false);
 			dialog.dispose();
 		}
 	}
+	
+	public void hideAllVisualArrays()
+	{
+		for(VisualArrayWindow window : visualArrayDialogMap.values())
+		{
+			window.setVisible(false);
+			window.dispose();
+		}
+		dialogController.removeAllWindows();
+		visualArrayDialogMap.clear();
+	}
 
+	public Window getOwner()
+	{
+		return owner;
+	}
+	
+	public Map<VisualArray, VisualArrayWindow> getWindowMap()
+	{
+		return this.visualArrayDialogMap;
+	}
+	
 	public List<VisualArray> getVisualArrayList()
 	{
 		return Collections.unmodifiableList(vaList);
 	}
 
-	public DialogController getDialogController()
+	public VisualArrayWindowController getWindowController()
 	{
 		return dialogController;
 	}
@@ -228,8 +263,7 @@ public class ControlPanel extends JPanel
 
 	public void dispose()
 	{
-		getDialogController().removeAll();
-
+		hideAllVisualArrays();
 	}
 
 	public StartButton getStartButton()
@@ -252,7 +286,7 @@ public class ControlPanel extends JPanel
 		return sorter;
 	}
 
-	public Map<VisualArray, ShowVisualArrayCheckBox> getVisualArrayCheckBoxMap()
+	public Map<VisualArray, ShowVisualArrayCheckBox> getCheckBoxMap()
 	{
 		return this.vaCheckBoxMap;
 	}
@@ -260,6 +294,11 @@ public class ControlPanel extends JPanel
 	public ShowAllCheckBox getShowAllCheckBox()
 	{
 		return this.showAllCheckBox;
+	}
+	
+	public void log(Object src, String event)
+	{
+		System.out.println("[" + src.getClass().getSimpleName() + "] " + event);
 	}
 
 	private static final long serialVersionUID = 3517653636753009689L;

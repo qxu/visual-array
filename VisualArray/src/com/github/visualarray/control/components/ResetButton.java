@@ -22,6 +22,7 @@ public class ResetButton extends JButton implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		controlPanel.reset();
+		controlPanel.log(this, e.getActionCommand() + " triggered");
 	}
 	
 	private static final long serialVersionUID = -7778996205946637084L;

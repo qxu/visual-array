@@ -1,59 +1,64 @@
 package com.github.visualarray.gui.components;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class DialogController 
+import javax.swing.JFrame;
+
+public class VisualArrayWindowController 
 {
-	private Set<VisualArrayDialog> vaDialogSet;
+	private JFrame sharedOwnerFrame;
+	private Set<VisualArrayWindow> vaDialogSet;
 	
-	public DialogController()
+	public VisualArrayWindowController()
 	{
+		sharedOwnerFrame = new JFrame();
 		this.vaDialogSet = new LinkedHashSet<>();
 	}
 	
-	public void addVisualArrayDialog(VisualArrayDialog dialog, String title)
+	public void addVisualArray(VisualArrayWindow dialog, String title)
 	{
 		vaDialogSet.add(dialog);
-		updateLocations();
+		update();
 	}
 	
-	public void removeVisualArrayDialog(VisualArrayDialog dialog)
+	public void removeVisualArray(VisualArrayWindow dialog)
 	{
 		if(vaDialogSet.remove(dialog))
 		{
-			updateLocations();
+			update();
 		}
 	}
 	
-	public void addAll(Collection<VisualArrayDialog> dialogs)
+	public void addAllVisualArrays(Collection<VisualArrayWindow> dialogs)
 	{
 		vaDialogSet.addAll(dialogs);
 	}
 	
-	public void removeAll()
+	public void removeAllVisualArrays()
 	{
 		if(!vaDialogSet.isEmpty())
 		{
 			vaDialogSet.clear();
-			updateLocations();
+			update();
 		}
 	}
 	
-	public void revalidate()
+	public Set<VisualArrayWindow> getWindows()
 	{
-		updateLocations();
+		return Collections.unmodifiableSet(vaDialogSet);
 	}
 	
-	private void updateLocations()
+	public void update()
 	{
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(VisualArrayDialog dialog : vaDialogSet)
+		for(VisualArrayWindow dialog : vaDialogSet)
 		{
-			dialog.setResizable(false);
+//			dialog.setResizable(false);
 			dialog.pack();
 			
 			int width = dialog.getWidth();

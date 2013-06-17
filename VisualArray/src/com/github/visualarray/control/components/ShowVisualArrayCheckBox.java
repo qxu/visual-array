@@ -34,6 +34,7 @@ public class ShowVisualArrayCheckBox extends JCheckBox implements ActionListener
 			controlPanel.hideVisualArray(va);
 		}
 		controlPanel.getShowAllCheckBox().updateSelected();
+		controlPanel.log(this, e.getActionCommand() + (isSelected() ? " selected" : " deselected"));
 	}
 	
 	private static final long serialVersionUID = 5625758425155359614L;

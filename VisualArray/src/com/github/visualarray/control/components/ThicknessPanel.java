@@ -44,6 +44,7 @@ public class ThicknessPanel extends JPanel
 					va.setThickness(thickness);
 				}
 				controlPanel.reset();
+				controlPanel.log(this, "Thickness changed to " + thickness);
 			}
 			catch(BadLocationException | NumberFormatException ignore)
 			{ // ignore

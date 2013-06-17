@@ -2,6 +2,7 @@ package com.github.visualarray;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
@@ -50,7 +51,7 @@ public class Freedom
 		int cfXPos = DesktopVars.DESKTOP_X_MAX - frame.getWidth();
 		int cfYPos = DesktopVars.DESKTOP_Y_MAX - frame.getHeight();
 		frame.setLocation(cfXPos, cfYPos);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 	}
 	
@@ -66,5 +67,20 @@ public class Freedom
 		}
 		
 		new Freedom();
+		
+		System.out.println("Windows:");
+		try
+		{
+			Thread.sleep(4000);
+		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		
+		for(Window w : Window.getWindows())
+		{
+			System.err.println(w);
+		}
 	}
 }

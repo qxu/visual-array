@@ -44,6 +44,7 @@ public class PaddingPanel extends JPanel
 					va.setPadding(padding);
 				}
 				controlPanel.reset();
+				controlPanel.log(this, "Padding changed to " +  padding);
 			}
 			catch(BadLocationException | NumberFormatException ignore)
 			{ // ignore

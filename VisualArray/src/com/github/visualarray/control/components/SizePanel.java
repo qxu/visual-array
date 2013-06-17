@@ -44,6 +44,7 @@ public class SizePanel extends JPanel
 					va.setInitialValues(values);
 				}
 				controlPanel.reset();
+				controlPanel.log(this, "Size changed to " + size);
 			}
 			catch(BadLocationException | NumberFormatException ignore)
 			{ // ignore

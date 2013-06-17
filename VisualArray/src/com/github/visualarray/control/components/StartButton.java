@@ -38,6 +38,7 @@ public class StartButton extends MultiTextButton implements ActionListener
 			controlPanel.resumeSorter();
 			break;
 		}
+		controlPanel.log(this, e.getActionCommand() + " triggered");
 	}
 	
 	public State getState()

@@ -23,6 +23,7 @@ public class StopButton extends JButton implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		controlPanel.stopSorter();
+		controlPanel.log(this, e.getActionCommand() + " triggered");
 	}
 	
 	private static final long serialVersionUID = -2501639915044373239L;

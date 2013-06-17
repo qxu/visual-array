@@ -41,6 +41,7 @@ public class DelayPanel extends JPanel
 				double delay = Double.parseDouble(text);
 				Sorter sorter = controlPanel.getSorter();
 				sorter.setStepDelay((long)(delay * 1000000));
+				controlPanel.log(this, "Delay changed to " + delay);
 			}
 			catch(BadLocationException | NumberFormatException ignore)
 			{ // ignore
