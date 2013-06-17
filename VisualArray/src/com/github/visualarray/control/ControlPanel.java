@@ -5,7 +5,6 @@ import java.awt.Window;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +12,9 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import com.github.visualarray.control.components.ArrayBuilderPanel;
+import com.github.visualarray.control.components.ControlWindowListener;
 import com.github.visualarray.control.components.DelayPanel;
-import com.github.visualarray.control.components.HideVisualArrayOnClose;
 import com.github.visualarray.control.components.PaddingPanel;
 import com.github.visualarray.control.components.ResetButton;
 import com.github.visualarray.control.components.ShowAllCheckBox;
@@ -25,7 +25,6 @@ import com.github.visualarray.control.components.StartButton.State;
 import com.github.visualarray.control.components.StopButton;
 import com.github.visualarray.control.components.ThicknessPanel;
 import com.github.visualarray.gui.components.VisualArray;
-import com.github.visualarray.gui.components.VisualArrayWindow;
 import com.github.visualarray.gui.components.VisualArrayWindowController;
 import com.github.visualarray.sort.ArrayBuilder;
 import com.github.visualarray.sort.ArrayConditions;
@@ -43,7 +42,9 @@ public class ControlPanel extends JPanel
 	private static final ArrayBuilder DEFAULT_ARRAY_BUILDER = ArrayConditions.UNIQUELY_RANDOM;
 
 	private final List<VisualArray> vaList;
-	private final VisualArrayWindowController dialogController;
+	private final VisualArrayWindowController windowController;
+
+	private int arrayBuilderSize;
 	private ArrayBuilder arrayBuilder;
 	private final Sorter sorter;
 
@@ -56,18 +57,18 @@ public class ControlPanel extends JPanel
 
 	private Window owner;
 
-	private Map<VisualArray, VisualArrayWindow> visualArrayDialogMap = new HashMap<>();
-
 	public ControlPanel(Window owner)
 	{
 		List<SortingAlgorithms> algs = Arrays
 				.asList(SortingAlgorithms.values());
 
 		this.owner = owner;
+		owner.addWindowListener(new ControlWindowListener(this));
 		this.vaList = new ArrayList<>(algs.size());
-		this.dialogController = new VisualArrayWindowController();
+		this.windowController = new VisualArrayWindowController(this);
+		this.arrayBuilderSize = DEFAULT_BUILDER_SIZE;
 		this.arrayBuilder = DEFAULT_ARRAY_BUILDER;
-		double[] x = arrayBuilder.build(DEFAULT_BUILDER_SIZE);
+		double[] x = arrayBuilder.build(arrayBuilderSize);
 
 		for(SortingAlgorithm algorithm : algs)
 		{
@@ -97,7 +98,7 @@ public class ControlPanel extends JPanel
 		showAllCheckBox = new ShowAllCheckBox(this);
 
 		checkBoxPanel.add(showAllCheckBox);
-		
+
 		checkBoxPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		add(checkBoxPanel);
 
@@ -123,6 +124,13 @@ public class ControlPanel extends JPanel
 		add(configPanel);
 
 		/*
+		 * ArrayBuilder
+		 */
+		JPanel arrayBuilderPanel = new ArrayBuilderPanel(this,
+				ArrayConditions.values(), DEFAULT_ARRAY_BUILDER);
+		add(arrayBuilderPanel);
+
+		/*
 		 * Control buttons
 		 */
 		JPanel controlButtons = new JPanel();
@@ -140,10 +148,28 @@ public class ControlPanel extends JPanel
 
 	public void startSorter()
 	{
-		sorter.start();
+		final Thread sortingThread = sorter.start();
 		startButton.setState(State.PAUSE);
 		stopButton.setEnabled(true);
 		resetButton.setEnabled(true);
+
+		Thread t = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					sortingThread.join();
+					stopSorter();
+				}
+				catch(InterruptedException e)
+				{
+					throw new AssertionError(e);
+				}
+			}
+		});
+		t.start();
 	}
 
 	public void pauseSorter()
@@ -169,11 +195,13 @@ public class ControlPanel extends JPanel
 	public void reset()
 	{
 		stopSorter();
+		double[] values = arrayBuilder.build(arrayBuilderSize);
 		for(VisualArray va : vaList)
 		{
+			va.setInitialValues(values);
 			va.reset();
 		}
-		dialogController.update();
+		windowController.update();
 		startButton.setEnabled(true);
 	}
 
@@ -184,23 +212,12 @@ public class ControlPanel extends JPanel
 
 	public void showVisualArray(VisualArray va)
 	{
-		if(!visualArrayDialogMap.containsKey(va))
+		if(!windowController.containsVisualArray(va))
 		{
-			VisualArrayWindow window = new VisualArrayWindow(this, va);
-			
-//			window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-//			window.setUndecorated(true);
-//			window.setResizable(false);
-			
-			window.pack();
-//			window.setFocusableWindowState(false);
-			window.addWindowListener(new HideVisualArrayOnClose(this, va));
-			dialogController.addWindow(window,
-					va.getSortingAlgorithm().toString());
-			visualArrayDialogMap.put(va, window);
+			windowController.addVisualArray(va);
 		}
 	}
-	
+
 	public void showAllVisualArrays()
 	{
 		for(VisualArray va : vaList)
@@ -211,36 +228,19 @@ public class ControlPanel extends JPanel
 
 	public void hideVisualArray(VisualArray va)
 	{
-		VisualArrayWindow dialog = visualArrayDialogMap.remove(va);
-		if(dialog != null)
-		{
-			dialogController.removeWindow(dialog);
-			dialog.setVisible(false);
-			dialog.dispose();
-		}
+		windowController.removeVisualArray(va);
 	}
-	
+
 	public void hideAllVisualArrays()
 	{
-		for(VisualArrayWindow window : visualArrayDialogMap.values())
-		{
-			window.setVisible(false);
-			window.dispose();
-		}
-		dialogController.removeAllWindows();
-		visualArrayDialogMap.clear();
+		windowController.removeAllVisualArrays();
 	}
 
 	public Window getOwner()
 	{
 		return owner;
 	}
-	
-	public Map<VisualArray, VisualArrayWindow> getWindowMap()
-	{
-		return this.visualArrayDialogMap;
-	}
-	
+
 	public List<VisualArray> getVisualArrayList()
 	{
 		return Collections.unmodifiableList(vaList);
@@ -248,12 +248,30 @@ public class ControlPanel extends JPanel
 
 	public VisualArrayWindowController getWindowController()
 	{
-		return dialogController;
+		return windowController;
+	}
+
+	public int getArrayBuilderSize()
+	{
+		return arrayBuilderSize;
+	}
+
+	public void setArrayBuilderSize(int size)
+	{
+		if(arrayBuilderSize != size)
+		{
+			this.arrayBuilderSize = size;
+			reset();
+		}
 	}
 
 	public void setArrayBuilder(ArrayBuilder builder)
 	{
-		this.arrayBuilder = builder;
+		if(arrayBuilder != builder)
+		{
+			this.arrayBuilder = builder;
+			reset();
+		}
 	}
 
 	public ArrayBuilder getArrayBuilder()
@@ -263,7 +281,7 @@ public class ControlPanel extends JPanel
 
 	public void dispose()
 	{
-		hideAllVisualArrays();
+		windowController.dispose();
 	}
 
 	public StartButton getStartButton()
@@ -290,12 +308,12 @@ public class ControlPanel extends JPanel
 	{
 		return this.vaCheckBoxMap;
 	}
-	
+
 	public ShowAllCheckBox getShowAllCheckBox()
 	{
 		return this.showAllCheckBox;
 	}
-	
+
 	public void log(Object src, String event)
 	{
 		System.out.println("[" + src.getClass().getSimpleName() + "] " + event);

@@ -7,7 +7,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import com.github.visualarray.control.ControlPanel;
-import com.github.visualarray.gui.components.VisualArray;
 
 public class SizePanel extends JPanel
 {
@@ -37,13 +36,8 @@ public class SizePanel extends JPanel
 			{
 				String text = doc.getText(0, doc.getLength());
 				int size = Integer.parseInt(text);
-
-				double[] values = controlPanel.getArrayBuilder().build(size);
-				for(VisualArray va : controlPanel.getVisualArrayList())
-				{
-					va.setInitialValues(values);
-				}
-				controlPanel.reset();
+				
+				controlPanel.setArrayBuilderSize(size);
 				controlPanel.log(this, "Size changed to " + size);
 			}
 			catch(BadLocationException | NumberFormatException ignore)

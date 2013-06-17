@@ -1,80 +1,115 @@
 package com.github.visualarray.gui.components;
 
+import java.awt.Window;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 
-public class VisualArrayWindowController 
+import com.github.visualarray.control.ControlPanel;
+import com.github.visualarray.control.components.HideVisualArrayOnClose;
+
+public class VisualArrayWindowController
 {
-	private JFrame sharedOwnerFrame;
-	private Set<VisualArrayWindow> vaDialogSet;
-	
-	public VisualArrayWindowController()
+	private ControlPanel controlPanel;
+	private Window sharedOwner;
+	private Map<VisualArray, VisualArrayWindow> vaWindowMap;
+
+	public VisualArrayWindowController(ControlPanel controlPanel)
 	{
-		sharedOwnerFrame = new JFrame();
-		this.vaDialogSet = new LinkedHashSet<>();
+		this.controlPanel = controlPanel;
+		sharedOwner = new JFrame();
+		this.vaWindowMap = new LinkedHashMap<>();
 	}
 	
-	public void addVisualArray(VisualArrayWindow dialog, String title)
+	public boolean containsVisualArray(VisualArray va)
 	{
-		vaDialogSet.add(dialog);
+		return vaWindowMap.containsKey(va);
+	}
+
+	public void addVisualArray(VisualArray va)
+	{
+		VisualArrayWindow window =
+				new VisualArrayWindow(sharedOwner, controlPanel, va);
+		window.pack();
+		window.addWindowListener(new HideVisualArrayOnClose(controlPanel, va));
+
+		vaWindowMap.put(va, window);
 		update();
 	}
-	
-	public void removeVisualArray(VisualArrayWindow dialog)
+
+	public void removeVisualArray(VisualArray va)
 	{
-		if(vaDialogSet.remove(dialog))
+		VisualArrayWindow window = vaWindowMap.remove(va);
+		if(window != null)
 		{
+			window.setVisible(false);
+			window.dispose();
 			update();
 		}
 	}
-	
-	public void addAllVisualArrays(Collection<VisualArrayWindow> dialogs)
+
+	public void addAllVisualArrays(Collection<VisualArray> vaCollection)
 	{
-		vaDialogSet.addAll(dialogs);
+		for(VisualArray va : vaCollection)
+		{
+			addVisualArray(va);
+		}
 	}
-	
+
 	public void removeAllVisualArrays()
 	{
-		if(!vaDialogSet.isEmpty())
+		if(!vaWindowMap.isEmpty())
 		{
-			vaDialogSet.clear();
+			for(VisualArrayWindow window : vaWindowMap.values())
+			{
+				window.setVisible(false);
+				window.dispose();
+			}
+			vaWindowMap.clear();
 			update();
 		}
 	}
 	
-	public Set<VisualArrayWindow> getWindows()
+	public void setVisible(boolean b)
 	{
-		return Collections.unmodifiableSet(vaDialogSet);
+		for(VisualArrayWindow window : vaWindowMap.values())
+		{
+			window.setVisible(b);
+		}
 	}
 	
+	public void dispose()
+	{
+		removeAllVisualArrays();
+		sharedOwner.dispose();
+	}
+
 	public void update()
 	{
 		int maxHeight = 0;
 		int x = DesktopVars.DESKTOP_X;
 		int y = DesktopVars.DESKTOP_Y;
-		for(VisualArrayWindow dialog : vaDialogSet)
+		for(VisualArrayWindow dialog : vaWindowMap.values())
 		{
-//			dialog.setResizable(false);
+			// dialog.setResizable(false);
 			dialog.pack();
-			
+
 			int width = dialog.getWidth();
 			int nextX = x + width;
-			
+
 			if(nextX > DesktopVars.DESKTOP_X_MAX)
 			{
 				x = 0;
 				nextX = width;
-				
+
 				int nextY = y + maxHeight;
 				y = nextY < DesktopVars.DESKTOP_Y_MAX ? nextY : 0;
-				
+
 				maxHeight = 0;
 			}
-			
+
 			dialog.setLocation(x, y);
 			x = nextX;
 			int height = dialog.getHeight();
@@ -82,7 +117,7 @@ public class VisualArrayWindowController
 			{
 				maxHeight = height;
 			}
-			
+
 			if(!dialog.isVisible())
 			{
 				dialog.setVisible(true);

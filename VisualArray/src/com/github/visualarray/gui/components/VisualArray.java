@@ -95,11 +95,11 @@ public class VisualArray extends JComponent implements Runnable
 
 		String debug = stepsUsed + "-" + stepsTriggered + " " + sortedIndexCount + "/" + getLength();
 		FontMetrics fm = getFontMetrics(g2d.getFont());
-		int strWidth = fm.stringWidth(debug);
-		int strHeight = fm.getHeight();
+		int x = getWidth() - fm.stringWidth(debug);
+		int y = fm.getAscent() - fm.getDescent();
 
 		g2d.setColor(Color.BLACK);
-		g2d.drawString(debug, getWidth() - strWidth, strHeight);
+		g2d.drawString(debug, x, y);
 	}
 
 //	public void setInitialValues(double[] x)

@@ -2,6 +2,8 @@ package com.github.visualarray.sort;
 
 import java.util.Random;
 
+import com.github.visualarray.util.StringUtil;
+
 public enum ArrayConditions implements ArrayBuilder
 {
 	SORTED
@@ -70,4 +72,17 @@ public enum ArrayConditions implements ArrayBuilder
 		}
 	},
 	;
+	
+	private final String name;
+	
+	private ArrayConditions()
+	{
+		this.name = StringUtil.capitalize(name().replace('_', ' ').toLowerCase());
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
+	}
 }

@@ -18,7 +18,7 @@ public class Sorter implements Runnable
 {
 	private Set<VisualArray> vaSet;
 	private long stepDelayNanos;
-	private NanoSleeper sleeper = new NanoSleeper();
+	private NanoSleeper sleeper;
 
 	private ReentrantLock runningLock = new ReentrantLock();
 	private volatile boolean stopRequested = false;
@@ -60,7 +60,10 @@ public class Sorter implements Runnable
 			throw new IllegalArgumentException("Negative delay");
 
 		this.stepDelayNanos = nanos;
-		sleeper.interrupt();
+		if(sleeper != null)
+		{
+			sleeper.interrupt();
+		}
 	}
 
 	public void pause()
@@ -75,9 +78,11 @@ public class Sorter implements Runnable
 		pauseLock.unlock();
 	}
 	
-	public void start()
+	public Thread start()
 	{
-		Executors.newSingleThreadExecutor().execute(this);
+		Thread t = new Thread(this);
+		t.start();
+		return t;
 	}
 	
 	public void stop()
@@ -116,6 +121,7 @@ public class Sorter implements Runnable
 	{
 		if(runningLock.tryLock())
 		{
+			sleeper = new NanoSleeper();
 			stopRequested = false;
 			List<VisualArray> runningVas = new ArrayList<>(vaSet);
 			ExecutorService vaSorter = Executors.newFixedThreadPool(runningVas.size());
@@ -188,6 +194,10 @@ public class Sorter implements Runnable
 					return;
 				}	
 			}
+			
+			sleeper = null;
+			runningLock.unlock();
+			return;
 		}
 		else
 		{

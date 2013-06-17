@@ -69,10 +69,15 @@ public class NanoSleeper
 	{
 		if(nanos < 0)
 			throw new IllegalArgumentException("negative timeout");
-		if(this.shouldStopAt > 0)
+		if(sleepingThreadLock.tryLock())
+		{
+			sleepingThread = Thread.currentThread();
+			this.shouldStopAt = System.nanoTime() + nanos;
+		}
+		else
+		{
 			throw new IllegalStateException("already started");
-		
-		this.shouldStopAt = System.nanoTime() + nanos;
+		}
 	}
 	
 	public void join() throws InterruptedException
@@ -101,6 +106,8 @@ public class NanoSleeper
 		long stopTime = System.nanoTime();
 		this.nanosBehind += (stopTime - this.shouldStopAt);
 		this.shouldStopAt = 0;
+		sleepingThread = null;
+		sleepingThreadLock.unlock();
 	}
 	
 	public void interrupt()

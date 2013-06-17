@@ -280,7 +280,7 @@ public enum SortingAlgorithms implements SortingAlgorithm
 				}
 			}
 			
-			System.out.println("first:" + first + ", last:" + last);
+//			System.out.println("first:" + first + ", last:" + last);
 		}
 	},
 	

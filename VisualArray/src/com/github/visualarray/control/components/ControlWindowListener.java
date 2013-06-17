@@ -13,11 +13,6 @@ public class ControlWindowListener implements WindowListener
 	{
 		this.controlPanel = controlPanel;
 	}
-	
-	@Override
-	public void windowOpened(WindowEvent e)
-	{
-	}
 
 	@Override
 	public void windowClosing(WindowEvent e)
@@ -34,29 +29,29 @@ public class ControlWindowListener implements WindowListener
 	@Override
 	public void windowIconified(WindowEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+		controlPanel.getWindowController().setVisible(false);
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+		controlPanel.getWindowController().setVisible(true);
+	}
+	
+	@Override
+	public void windowOpened(WindowEvent e)
+	{
 	}
 
 	@Override
 	public void windowActivated(WindowEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+		controlPanel.getWindowController().setVisible(true);
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent e)
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
 }
