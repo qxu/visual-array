@@ -56,6 +56,8 @@ public class ControlPanel extends JPanel
 	private final ResetButton resetButton;
 
 	private Window owner;
+	
+	private volatile boolean stopOnSortFinish;
 
 	public ControlPanel(Window owner)
 	{
@@ -153,6 +155,7 @@ public class ControlPanel extends JPanel
 		stopButton.setEnabled(true);
 		resetButton.setEnabled(true);
 
+		stopOnSortFinish = true;
 		Thread t = new Thread(new Runnable()
 		{
 			@Override
@@ -161,11 +164,13 @@ public class ControlPanel extends JPanel
 				try
 				{
 					sortingThread.join();
-					stopSorter();
+					if(stopOnSortFinish)
+					{
+						stopSorter();
+					}
 				}
 				catch(InterruptedException e)
-				{
-					throw new AssertionError(e);
+				{ // ignore
 				}
 			}
 		});
@@ -186,15 +191,19 @@ public class ControlPanel extends JPanel
 
 	public void stopSorter()
 	{
+		stopOnSortFinish = false;
+		sorter.stop();
+		
 		startButton.setEnabled(false);
 		stopButton.setEnabled(false);
 		startButton.setState(State.START);
-		sorter.stop();
 	}
 
 	public void reset()
 	{
-		stopSorter();
+		stopOnSortFinish = false;
+		sorter.stop();
+		
 		double[] values = arrayBuilder.build(arrayBuilderSize);
 		for(VisualArray va : vaList)
 		{
@@ -202,7 +211,12 @@ public class ControlPanel extends JPanel
 			va.reset();
 		}
 		windowController.update();
+		
+		stopButton.setEnabled(false);
+		startButton.setState(State.START);
 		startButton.setEnabled(true);
+		stopOnSortFinish = false;
+		sorter.stop();
 	}
 
 	public void addVisualArray(VisualArray va)

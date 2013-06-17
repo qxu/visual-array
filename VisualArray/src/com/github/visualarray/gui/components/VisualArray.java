@@ -263,8 +263,8 @@ public class VisualArray extends JComponent implements Runnable
 		Color priColor = primary.color;
 		Color secColor = secondary.color;
 
-		primary.color = VAColors.getPrimarySwap();
-		secondary.color = VAColors.getSecondarySwap();
+		primary.color = VAColors.PRIMARY_SWAP;
+		secondary.color = VAColors.SECONDARY_SWAP;
 
 		repaint();
 
@@ -291,8 +291,8 @@ public class VisualArray extends JComponent implements Runnable
 		Color priColor = primary.color;
 		Color secColor = secondary.color;
 
-		primary.color = VAColors.getPrimaryCompare();
-		secondary.color = VAColors.getSecondaryCompare();
+		primary.color = VAColors.PRIMARY_COMPARE;
+		secondary.color = VAColors.SECONDARY_COMPARE;
 
 		repaint();
 
@@ -308,7 +308,7 @@ public class VisualArray extends JComponent implements Runnable
 	public void markSortedIndex(int index)
 	{
 		VASortingLine line = elements[index];
-		Color sortedColor = VAColors.getSorted();
+		Color sortedColor = VAColors.SORTED;
 		if(!line.color.equals(sortedColor))
 		{
 			line.color = sortedColor;
@@ -319,7 +319,7 @@ public class VisualArray extends JComponent implements Runnable
 	public void unmarkSortedIndex(int index)
 	{
 		VASortingLine line = elements[index];
-		Color unsortedColor = VAColors.getUnSorted();
+		Color unsortedColor = VAColors.UN_SORTED;
 		if(!line.color.equals(unsortedColor))
 		{
 			line.color = unsortedColor;
@@ -334,7 +334,7 @@ public class VisualArray extends JComponent implements Runnable
 				(thickness * len + padding * (len - 1)) * ASPECT_RATIO);
 		this.elements = new VASortingLine[len];
 		int maxLength = 0;
-		final Color unsorted = VAColors.getUnSorted();
+		final Color unsorted = VAColors.UN_SORTED;
 		for(int i = 0; i < len; ++i)
 		{
 			int lineLength = (int)Math.round(initialValues[i] * scaleFactor);
