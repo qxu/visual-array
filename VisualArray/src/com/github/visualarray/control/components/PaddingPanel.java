@@ -9,12 +9,10 @@ import javax.swing.text.Document;
 import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
-public class PaddingPanel extends JPanel
-{
+public class PaddingPanel extends JPanel {
 	private ControlPanel controlPanel;
 
-	public PaddingPanel(ControlPanel controlPanel, int defaultPadding)
-	{
+	public PaddingPanel(ControlPanel controlPanel, int defaultPadding) {
 		this.controlPanel = controlPanel;
 
 		add(new JLabel("Padding:"));
@@ -28,26 +26,20 @@ public class PaddingPanel extends JPanel
 	}
 
 	private class PaddingFieldDocumentListener extends
-			AbstractDocumentUpdateListener
-	{
+			AbstractDocumentUpdateListener {
 		@Override
-		protected void updatePerformed(DocumentEvent e)
-		{
+		protected void updatePerformed(DocumentEvent e) {
 			Document doc = e.getDocument();
-			try
-			{
+			try {
 				String text = doc.getText(0, doc.getLength());
 				int padding = Integer.parseInt(text);
 
-				for(VisualArray va : controlPanel.getVisualArrayList())
-				{
+				for (VisualArray va : controlPanel.getVisualArrayList()) {
 					va.setPadding(padding);
 				}
 				controlPanel.reset();
-				controlPanel.log(this, "Padding changed to " +  padding);
-			}
-			catch(BadLocationException | NumberFormatException ignore)
-			{ // ignore
+				controlPanel.log(this, "Padding changed to " + padding);
+			} catch (BadLocationException | NumberFormatException ignore) { // ignore
 			}
 		}
 	}

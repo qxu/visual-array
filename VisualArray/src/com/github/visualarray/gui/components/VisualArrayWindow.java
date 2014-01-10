@@ -20,25 +20,23 @@ import javax.swing.border.EmptyBorder;
 import com.github.visualarray.control.ControlPanel;
 
 public class VisualArrayWindow extends JWindow implements MouseListener,
-		MouseMotionListener
-{
+		MouseMotionListener {
 	private static final Color BORDER_COLOR = null;
 	private static final Color LABEL_BACKGROUND_COLOR = BORDER_COLOR;
 	private static final Color LABEL_TEXT_COLOR = Color.BLACK;
-	
+
 	private ControlPanel panel;
 	private VisualArray va;
-	
-	public VisualArrayWindow(Window owner, ControlPanel panel, VisualArray va)
-	{
+
+	public VisualArrayWindow(Window owner, ControlPanel panel, VisualArray va) {
 		super(owner);
 
 		this.panel = panel;
 		this.va = va;
 
-		JPanel contentPane = (JPanel)getContentPane();
-		contentPane.setBorder(
-				BorderFactory.createMatteBorder(2, 2, 2, 2, BORDER_COLOR));
+		JPanel contentPane = (JPanel) getContentPane();
+		contentPane.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2,
+				BORDER_COLOR));
 
 		setLayout(new BorderLayout());
 		JLabel label = new JLabel(va.getSortingAlgorithm().toString());
@@ -63,59 +61,50 @@ public class VisualArrayWindow extends JWindow implements MouseListener,
 		addMouseMotionListener(this);
 	}
 
-	public VisualArray getVisualArray()
-	{
+	public VisualArray getVisualArray() {
 		return va;
 	}
 
 	private Point pressPoint;
 
 	@Override
-	public void mousePressed(MouseEvent e)
-	{
+	public void mousePressed(MouseEvent e) {
 		panel.getOwner().toFront();
 		toFront();
 		pressPoint = e.getPoint();
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e)
-	{
+	public void mouseReleased(MouseEvent e) {
 		pressPoint = null;
 		panel.getOwner().toFront();
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e)
-	{
-		if(pressPoint != null)
-		{
+	public void mouseDragged(MouseEvent e) {
+		if (pressPoint != null) {
 			Point p = e.getPoint();
 
 			Point location = getLocation();
-			setLocation(location.x + p.x - pressPoint.x,
-					location.y + p.y - pressPoint.y);
+			setLocation(location.x + p.x - pressPoint.x, location.y + p.y
+					- pressPoint.y);
 		}
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e)
-	{
+	public void mouseMoved(MouseEvent e) {
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e)
-	{
+	public void mouseClicked(MouseEvent e) {
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e)
-	{
+	public void mouseEntered(MouseEvent e) {
 	}
 
 	@Override
-	public void mouseExited(MouseEvent e)
-	{
+	public void mouseExited(MouseEvent e) {
 	}
 
 	private static final long serialVersionUID = -8602225285527978238L;

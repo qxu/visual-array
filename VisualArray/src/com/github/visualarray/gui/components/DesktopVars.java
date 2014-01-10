@@ -3,8 +3,7 @@ package com.github.visualarray.gui.components;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 
-public class DesktopVars
-{
+public class DesktopVars {
 	public static final int DESKTOP_WIDTH;
 	public static final int DESKTOP_HEIGHT;
 	public static final int DESKTOP_X;
@@ -13,19 +12,17 @@ public class DesktopVars
 	public static final int DESKTOP_Y_MAX;
 
 	private static final Rectangle DESKTOP_BOUNDS;
-	
-	public static Rectangle getBounds()
-	{
+
+	public static Rectangle getBounds() {
 		return new Rectangle(DESKTOP_BOUNDS);
 	}
-	
-	private DesktopVars()
-	{ // no instantiation
+
+	private DesktopVars() { // no instantiation
 	}
-	
-	static
-	{
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+	static {
+		GraphicsEnvironment ge = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
 		Rectangle desktopBounds = ge.getMaximumWindowBounds();
 		DESKTOP_WIDTH = desktopBounds.width;
 		DESKTOP_HEIGHT = desktopBounds.height;

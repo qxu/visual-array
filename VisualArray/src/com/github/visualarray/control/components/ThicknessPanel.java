@@ -9,12 +9,10 @@ import javax.swing.text.Document;
 import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
-public class ThicknessPanel extends JPanel
-{
+public class ThicknessPanel extends JPanel {
 	private ControlPanel controlPanel;
 
-	public ThicknessPanel(ControlPanel controlPanel, int defaultThickness)
-	{
+	public ThicknessPanel(ControlPanel controlPanel, int defaultThickness) {
 		this.controlPanel = controlPanel;
 
 		add(new JLabel("Thickness:"));
@@ -28,26 +26,20 @@ public class ThicknessPanel extends JPanel
 	}
 
 	private class ThicknessFieldDocumentListener extends
-			AbstractDocumentUpdateListener
-	{
+			AbstractDocumentUpdateListener {
 		@Override
-		protected void updatePerformed(DocumentEvent e)
-		{
+		protected void updatePerformed(DocumentEvent e) {
 			Document doc = e.getDocument();
-			try
-			{
+			try {
 				String text = doc.getText(0, doc.getLength());
 				int thickness = Integer.parseInt(text);
 
-				for(VisualArray va : controlPanel.getVisualArrayList())
-				{
+				for (VisualArray va : controlPanel.getVisualArrayList()) {
 					va.setThickness(thickness);
 				}
 				controlPanel.reset();
 				controlPanel.log(this, "Thickness changed to " + thickness);
-			}
-			catch(BadLocationException | NumberFormatException ignore)
-			{ // ignore
+			} catch (BadLocationException | NumberFormatException ignore) { // ignore
 			}
 		}
 	}

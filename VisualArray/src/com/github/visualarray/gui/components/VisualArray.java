@@ -12,9 +12,7 @@ import javax.swing.JComponent;
 
 import com.github.visualarray.sort.SortingAlgorithm;
 
-
-public class VisualArray extends JComponent implements Runnable
-{
+public class VisualArray extends JComponent implements Runnable {
 	private static final double ASPECT_RATIO = 1;
 
 	private double[] initialValues;
@@ -29,18 +27,18 @@ public class VisualArray extends JComponent implements Runnable
 	private volatile int sortedIndexCount;
 	private volatile int stepWait;
 	private final Object stepLock = new Object();
-	
+
 	private SortingAlgorithm sortingAlgorithm;
-	
+
 	private ReentrantLock runningLock = new ReentrantLock();
 	private volatile Thread sortingThread = null;
-	
+
 	private int stepsTriggered = 0;
 	private int stepsUsed = 0;
-	
-	public VisualArray(SortingAlgorithm alg, double[] values, int thickness, int padding)
-	{
-		if(values == null)
+
+	public VisualArray(SortingAlgorithm alg, double[] values, int thickness,
+			int padding) {
+		if (values == null)
 			throw new NullPointerException();
 
 		this.thickness = thickness;
@@ -51,49 +49,41 @@ public class VisualArray extends JComponent implements Runnable
 
 		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
 	}
-	
+
 	@Override
-	public void run()
-	{
-		if(runningLock.tryLock())
-		{
+	public void run() {
+		if (runningLock.tryLock()) {
 			sortingThread = Thread.currentThread();
-			
+
 			SortingAlgorithm sorter = getSortingAlgorithm();
-			try
-			{
+			try {
 				sorter.sort(this);
+			} catch (InterruptedException e) { // stop requested
 			}
-			catch(InterruptedException e)
-			{ // stop requested
-			}
-			
+
 			sortingThread = null;
 			runningLock.unlock();
-		}
-		else
-		{
+		} else {
 			throw new IllegalStateException("Already running");
 		}
 	}
-	
+
 	@Override
-	protected void paintComponent(Graphics g)
-	{
-		Graphics2D g2d = (Graphics2D)g;
+	protected void paintComponent(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
 
 		int thickness = getThickness();
 		int dy = thickness + getPadding();
 
 		int length = getLength();
-		for(int i = 0; i < length; ++i)
-		{
+		for (int i = 0; i < length; ++i) {
 			VASortingLine line = elements[i];
 			g2d.setColor(line.color);
 			g2d.fillRect(0, i * dy, line.length, thickness);
 		}
 
-		String debug = stepsUsed + "-" + stepsTriggered + " " + sortedIndexCount + "/" + getLength();
+		String debug = stepsUsed + "-" + stepsTriggered + " "
+				+ sortedIndexCount + "/" + getLength();
 		FontMetrics fm = getFontMetrics(g2d.getFont());
 		int x = getWidth() - fm.stringWidth(debug);
 		int y = fm.getAscent() - fm.getDescent();
@@ -102,139 +92,119 @@ public class VisualArray extends JComponent implements Runnable
 		g2d.drawString(debug, x, y);
 	}
 
-//	public void setInitialValues(double[] x)
-//	{// TODO
-//		double[] values = x.clone();
-//		int len = values.length;
-//		int scaleFactor = (int)((thickness * len + padding * (len - 1)) *
-//				ASPECT_RATIO);
-//		int maxLength = 0;
-//		VASortingLine[] elements = new VASortingLine[len];
-//		for(int i = 0; i < len; ++i)
-//		{
-//			int lineLength = (int)Math.round(values[i] * scaleFactor);
-//			elements[i] = new VASortingLine(lineLength);
-//			if(lineLength > maxLength)
-//			{
-//				maxLength = lineLength;
-//			}
-//		}
-//	}
+	// public void setInitialValues(double[] x)
+	// {// TODO
+	// double[] values = x.clone();
+	// int len = values.length;
+	// int scaleFactor = (int)((thickness * len + padding * (len - 1)) *
+	// ASPECT_RATIO);
+	// int maxLength = 0;
+	// VASortingLine[] elements = new VASortingLine[len];
+	// for(int i = 0; i < len; ++i)
+	// {
+	// int lineLength = (int)Math.round(values[i] * scaleFactor);
+	// elements[i] = new VASortingLine(lineLength);
+	// if(lineLength > maxLength)
+	// {
+	// maxLength = lineLength;
+	// }
+	// }
+	// }
 
-	public int getCompareDelay()
-	{
+	public int getCompareDelay() {
 		return this.compareDelay;
 	}
 
-	public void setCompareDelay(int steps)
-	{
-		if(steps < 0)
+	public void setCompareDelay(int steps) {
+		if (steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
 
 		this.compareDelay = steps;
 	}
 
-	public int getSwapDelay()
-	{
+	public int getSwapDelay() {
 		return this.swapDelay;
 	}
 
-	public void setSwapDelay(int steps)
-	{
-		if(steps < 0)
+	public void setSwapDelay(int steps) {
+		if (steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
 
 		this.swapDelay = steps;
 	}
 
-	public int getThickness()
-	{
+	public int getThickness() {
 		return this.thickness;
 	}
 
-	public void setThickness(int thickness)
-	{
-		if(thickness < 0)
+	public void setThickness(int thickness) {
+		if (thickness < 0)
 			throw new IllegalArgumentException("Negative thickness: "
 					+ thickness);
 
 		this.thickness = thickness;
 	}
 
-	public int getPadding()
-	{
+	public int getPadding() {
 		return this.padding;
 	}
 
-	public void setPadding(int padding)
-	{
-		if(padding < 0)
+	public void setPadding(int padding) {
+		if (padding < 0)
 			throw new IllegalArgumentException("Negative padding: " + padding);
 
 		this.padding = padding;
 	}
 
-	public boolean isSorted()
-	{
+	public boolean isSorted() {
 		return this.sortedIndexCount == getLength();
 	}
 
-	public void markFinished()
-	{
-		synchronized(this.stepLock)
-		{
-			if(!isSorted())
+	public void markFinished() {
+		synchronized (this.stepLock) {
+			if (!isSorted())
 				throw new AssertionError("not fully sorted");
 			this.stepLock.notifyAll();
 		}
 	}
 
-	public int getLength()
-	{
+	public int getLength() {
 		return this.elements.length;
 	}
-	
-	public boolean isRunning()
-	{
+
+	public boolean isRunning() {
 		return sortingThread != null;
 	}
 
-	public void step() throws InterruptedException
-	{
+	public void step() throws InterruptedException {
 		++stepsTriggered;
-		if(isRunning())
-		{
-			synchronized(this.stepLock)
-			{
-				if(this.stepWait <= 0)
-				{
+		if (isRunning()) {
+			synchronized (this.stepLock) {
+				if (this.stepWait <= 0) {
 					this.stepLock.wait();
 				}
-	
-				if(isSorted())
+
+				if (isSorted())
 					return;
-	
+
 				--this.stepWait;
-	
-				if(this.stepWait <= 0)
-				{
+
+				if (this.stepWait <= 0) {
 					this.stepLock.notifyAll();
 				}
-	
+
 				this.stepLock.wait();
 			}
 		}
 	}
 
-	private void waitSteps(int steps) throws InterruptedException
-	{
-		if(steps < 0)
+	private void waitSteps(int steps) throws InterruptedException {
+		if (steps < 0)
 			throw new IllegalArgumentException("Negative steps: " + steps);
-		if(steps == 0)
+		if (steps == 0)
 			return;
-		synchronized(this.stepLock)
-		{
-			if(this.stepWait > 0)
+		synchronized (this.stepLock) {
+			if (this.stepWait > 0)
 				throw new IllegalStateException("Already waiting for steps");
 
 			this.stepWait = steps;
@@ -246,17 +216,15 @@ public class VisualArray extends JComponent implements Runnable
 			this.stepLock.notifyAll();
 		}
 	}
-	
-	private void checkThreadAccess()
-	{
-		if(Thread.currentThread() != sortingThread)
+
+	private void checkThreadAccess() {
+		if (Thread.currentThread() != sortingThread)
 			throw new IllegalStateException("Not called from sorting thread");
 	}
 
-	public void swap(int index1, int index2) throws InterruptedException
-	{
+	public void swap(int index1, int index2) throws InterruptedException {
 		checkThreadAccess();
-		
+
 		VASortingLine primary = elements[index1];
 		VASortingLine secondary = elements[index2];
 
@@ -281,10 +249,9 @@ public class VisualArray extends JComponent implements Runnable
 		repaint();
 	}
 
-	public int compare(int index1, int index2) throws InterruptedException
-	{
+	public int compare(int index1, int index2) throws InterruptedException {
 		checkThreadAccess();
-		
+
 		VASortingLine primary = elements[index1];
 		VASortingLine secondary = elements[index2];
 
@@ -305,86 +272,74 @@ public class VisualArray extends JComponent implements Runnable
 		return Integer.compare(primary.length, secondary.length);
 	}
 
-	public void markSortedIndex(int index)
-	{
+	public void markSortedIndex(int index) {
 		VASortingLine line = elements[index];
 		Color sortedColor = VAColors.SORTED;
-		if(!line.color.equals(sortedColor))
-		{
+		if (!line.color.equals(sortedColor)) {
 			line.color = sortedColor;
 			++sortedIndexCount;
 		}
 	}
 
-	public void unmarkSortedIndex(int index)
-	{
+	public void unmarkSortedIndex(int index) {
 		VASortingLine line = elements[index];
 		Color unsortedColor = VAColors.UN_SORTED;
-		if(!line.color.equals(unsortedColor))
-		{
+		if (!line.color.equals(unsortedColor)) {
 			line.color = unsortedColor;
 			--sortedIndexCount;
 		}
 	}
 
-	public void reset()
-	{
+	public void reset() {
 		int len = initialValues.length;
-		int scaleFactor = (int)Math.round(
-				(thickness * len + padding * (len - 1)) * ASPECT_RATIO);
+		int scaleFactor = (int) Math.round((thickness * len + padding
+				* (len - 1))
+				* ASPECT_RATIO);
 		this.elements = new VASortingLine[len];
 		int maxLength = 0;
 		final Color unsorted = VAColors.UN_SORTED;
-		for(int i = 0; i < len; ++i)
-		{
-			int lineLength = (int)Math.round(initialValues[i] * scaleFactor);
-			if(lineLength > maxLength)
-			{
+		for (int i = 0; i < len; ++i) {
+			int lineLength = (int) Math.round(initialValues[i] * scaleFactor);
+			if (lineLength > maxLength) {
 				maxLength = lineLength;
 			}
 			this.elements[i] = new VASortingLine(lineLength, unsorted);
 		}
-		
+
 		this.sortedIndexCount = 0;
 		this.stepWait = 0;
-		
+
 		this.stepsUsed = 0;
 		this.stepsTriggered = 0;
-		
+
 		Dimension size = new Dimension(maxLength, len * (thickness + padding));
 		setPreferredSize(size);
 		setSize(size);
 		repaint();
 	}
 
-	public void setInitialValues(double[] values)
-	{
+	public void setInitialValues(double[] values) {
 		this.initialValues = values;
 	}
-	
-	public void setSortingAlgorithm(SortingAlgorithm alg)
-	{
+
+	public void setSortingAlgorithm(SortingAlgorithm alg) {
 		this.sortingAlgorithm = alg;
 	}
-	
-	public SortingAlgorithm getSortingAlgorithm()
-	{
+
+	public SortingAlgorithm getSortingAlgorithm() {
 		return sortingAlgorithm;
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "sorted:" + sortedIndexCount + "/" + getLength();
 	}
 
-	private static class VASortingLine
-	{
+	private static class VASortingLine {
 		int length;
 		Color color;
 
-		VASortingLine(int length, Color c)
-		{
+		VASortingLine(int length, Color c) {
 			this.length = length;
 			this.color = c;
 		}

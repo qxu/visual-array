@@ -9,17 +9,14 @@ import javax.swing.text.Document;
 import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.control.Sorter;
 
-
-public class DelayPanel extends JPanel
-{
+public class DelayPanel extends JPanel {
 	private final ControlPanel controlPanel;
 
-	public DelayPanel(ControlPanel controlPanel, double defaultDelay)
-	{
+	public DelayPanel(ControlPanel controlPanel, double defaultDelay) {
 		this.controlPanel = controlPanel;
-		
+
 		add(new JLabel("Step Delay (ms):"));
-		
+
 		JNumberTextField delayField = new JNumberTextField(8,
 				JNumberTextField.FLOATING_POINT, false);
 		delayField.setNumber(defaultDelay);
@@ -29,22 +26,17 @@ public class DelayPanel extends JPanel
 	}
 
 	private class DelayFieldDocumentListener extends
-			AbstractDocumentUpdateListener
-	{
+			AbstractDocumentUpdateListener {
 		@Override
-		protected void updatePerformed(DocumentEvent e)
-		{
+		protected void updatePerformed(DocumentEvent e) {
 			Document doc = e.getDocument();
-			try
-			{
+			try {
 				String text = doc.getText(0, doc.getLength());
 				double delay = Double.parseDouble(text);
 				Sorter sorter = controlPanel.getSorter();
-				sorter.setStepDelay((long)(delay * 1000000));
+				sorter.setStepDelay((long) (delay * 1000000));
 				controlPanel.log(this, "Delay changed to " + delay);
-			}
-			catch(BadLocationException | NumberFormatException ignore)
-			{ // ignore
+			} catch (BadLocationException | NumberFormatException ignore) { // ignore
 			}
 		}
 	}

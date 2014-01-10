@@ -31,8 +31,7 @@ import com.github.visualarray.sort.ArrayConditions;
 import com.github.visualarray.sort.SortingAlgorithm;
 import com.github.visualarray.sort.SortingAlgorithms;
 
-public class ControlPanel extends JPanel
-{
+public class ControlPanel extends JPanel {
 	private static final int DEFAULT_BUILDER_SIZE = 80;
 	private static final int DEFAULT_PADDING = 1;
 	private static final int DEFUALT_THICKNESS = 2;
@@ -56,11 +55,10 @@ public class ControlPanel extends JPanel
 	private final ResetButton resetButton;
 
 	private Window owner;
-	
+
 	private volatile boolean stopOnSortFinish;
 
-	public ControlPanel(Window owner)
-	{
+	public ControlPanel(Window owner) {
 		List<SortingAlgorithms> algs = Arrays
 				.asList(SortingAlgorithms.values());
 
@@ -72,14 +70,13 @@ public class ControlPanel extends JPanel
 		this.arrayBuilder = DEFAULT_ARRAY_BUILDER;
 		double[] x = arrayBuilder.build(arrayBuilderSize);
 
-		for(SortingAlgorithm algorithm : algs)
-		{
-			VisualArray va = new VisualArray(algorithm, x,
-					DEFUALT_THICKNESS, DEFAULT_PADDING);
+		for (SortingAlgorithm algorithm : algs) {
+			VisualArray va = new VisualArray(algorithm, x, DEFUALT_THICKNESS,
+					DEFAULT_PADDING);
 			addVisualArray(va);
 		}
 
-		this.sorter = new Sorter((long)(DEFAULT_STEP_DELAY * 1000000), vaList);
+		this.sorter = new Sorter((long) (DEFAULT_STEP_DELAY * 1000000), vaList);
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -90,8 +87,7 @@ public class ControlPanel extends JPanel
 		 * check boxes
 		 */
 		vaCheckBoxMap = new LinkedHashMap<>();
-		for(VisualArray va : vaList)
-		{
+		for (VisualArray va : vaList) {
 			ShowVisualArrayCheckBox checkBox = new ShowVisualArrayCheckBox(
 					this, va, va.getSortingAlgorithm().toString());
 			checkBoxPanel.add(checkBox);
@@ -148,70 +144,58 @@ public class ControlPanel extends JPanel
 		add(controlButtons);
 	}
 
-	public void startSorter()
-	{
+	public void startSorter() {
 		final Thread sortingThread = sorter.start();
 		startButton.setState(State.PAUSE);
 		stopButton.setEnabled(true);
 		resetButton.setEnabled(true);
 
 		stopOnSortFinish = true;
-		Thread t = new Thread(new Runnable()
-		{
+		Thread t = new Thread(new Runnable() {
 			@Override
-			public void run()
-			{
-				try
-				{
+			public void run() {
+				try {
 					sortingThread.join();
-					if(stopOnSortFinish)
-					{
+					if (stopOnSortFinish) {
 						stopSorter();
 					}
-				}
-				catch(InterruptedException e)
-				{ // ignore
+				} catch (InterruptedException e) { // ignore
 				}
 			}
 		});
 		t.start();
 	}
 
-	public void pauseSorter()
-	{
+	public void pauseSorter() {
 		sorter.pause();
 		startButton.setState(State.RESUME);
 	}
 
-	public void resumeSorter()
-	{
+	public void resumeSorter() {
 		sorter.resume();
 		startButton.setState(State.PAUSE);
 	}
 
-	public void stopSorter()
-	{
+	public void stopSorter() {
 		stopOnSortFinish = false;
 		sorter.stop();
-		
+
 		startButton.setEnabled(false);
 		stopButton.setEnabled(false);
 		startButton.setState(State.START);
 	}
 
-	public void reset()
-	{
+	public void reset() {
 		stopOnSortFinish = false;
 		sorter.stop();
-		
+
 		double[] values = arrayBuilder.build(arrayBuilderSize);
-		for(VisualArray va : vaList)
-		{
+		for (VisualArray va : vaList) {
 			va.setInitialValues(values);
 			va.reset();
 		}
 		windowController.update();
-		
+
 		stopButton.setEnabled(false);
 		startButton.setState(State.START);
 		startButton.setEnabled(true);
@@ -219,117 +203,93 @@ public class ControlPanel extends JPanel
 		sorter.stop();
 	}
 
-	public void addVisualArray(VisualArray va)
-	{
+	public void addVisualArray(VisualArray va) {
 		vaList.add(va);
 	}
 
-	public void showVisualArray(VisualArray va)
-	{
-		if(!windowController.containsVisualArray(va))
-		{
+	public void showVisualArray(VisualArray va) {
+		if (!windowController.containsVisualArray(va)) {
 			windowController.addVisualArray(va);
 		}
 	}
 
-	public void showAllVisualArrays()
-	{
-		for(VisualArray va : vaList)
-		{
+	public void showAllVisualArrays() {
+		for (VisualArray va : vaList) {
 			showVisualArray(va);
 		}
 	}
 
-	public void hideVisualArray(VisualArray va)
-	{
+	public void hideVisualArray(VisualArray va) {
 		windowController.removeVisualArray(va);
 	}
 
-	public void hideAllVisualArrays()
-	{
+	public void hideAllVisualArrays() {
 		windowController.removeAllVisualArrays();
 	}
 
-	public Window getOwner()
-	{
+	public Window getOwner() {
 		return owner;
 	}
 
-	public List<VisualArray> getVisualArrayList()
-	{
+	public List<VisualArray> getVisualArrayList() {
 		return Collections.unmodifiableList(vaList);
 	}
 
-	public VisualArrayWindowController getWindowController()
-	{
+	public VisualArrayWindowController getWindowController() {
 		return windowController;
 	}
 
-	public int getArrayBuilderSize()
-	{
+	public int getArrayBuilderSize() {
 		return arrayBuilderSize;
 	}
 
-	public void setArrayBuilderSize(int size)
-	{
-		if(arrayBuilderSize != size)
-		{
+	public void setArrayBuilderSize(int size) {
+		if (arrayBuilderSize != size) {
 			this.arrayBuilderSize = size;
 			reset();
 		}
 	}
 
-	public void setArrayBuilder(ArrayBuilder builder)
-	{
-		if(arrayBuilder != builder)
-		{
+	public void setArrayBuilder(ArrayBuilder builder) {
+		if (arrayBuilder != builder) {
 			this.arrayBuilder = builder;
 			reset();
 		}
 	}
 
-	public ArrayBuilder getArrayBuilder()
-	{
+	public ArrayBuilder getArrayBuilder() {
 		return arrayBuilder;
 	}
 
-	public void dispose()
-	{
+	public void dispose() {
 		windowController.dispose();
 	}
 
-	public StartButton getStartButton()
-	{
+	public StartButton getStartButton() {
 		return startButton;
 	}
 
-	public StopButton getStopButton()
-	{
+	public StopButton getStopButton() {
 		return stopButton;
 	}
 
-	public ResetButton getResetButton()
-	{
+	public ResetButton getResetButton() {
 		return resetButton;
 	}
 
-	public Sorter getSorter()
-	{
+	public Sorter getSorter() {
 		return sorter;
 	}
 
-	public Map<VisualArray, ShowVisualArrayCheckBox> getCheckBoxMap()
-	{
+	public Map<VisualArray, ShowVisualArrayCheckBox> getCheckBoxMap() {
 		return this.vaCheckBoxMap;
 	}
 
-	public ShowAllCheckBox getShowAllCheckBox()
-	{
+	public ShowAllCheckBox getShowAllCheckBox() {
 		return this.showAllCheckBox;
 	}
 
-	public void log(Object src, String event)
-	{
+	public void log(Object src, String event) {
 		System.out.println("[" + src.getClass().getSimpleName() + "] " + event);
 	}
 

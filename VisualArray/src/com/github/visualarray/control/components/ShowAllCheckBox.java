@@ -9,26 +9,21 @@ import javax.swing.JCheckBox;
 import com.github.visualarray.control.ControlPanel;
 import com.github.visualarray.gui.components.VisualArray;
 
-public class ShowAllCheckBox extends JCheckBox implements ActionListener
-{
+public class ShowAllCheckBox extends JCheckBox implements ActionListener {
 	private ControlPanel controlPanel;
 
-	public ShowAllCheckBox(ControlPanel controlPanel)
-	{
+	public ShowAllCheckBox(ControlPanel controlPanel) {
 		super("Show All");
 		this.controlPanel = controlPanel;
 
 		addActionListener(this);
 	}
 
-	public void updateSelected()
-	{
+	public void updateSelected() {
 		boolean shouldBeSelected = true;
-		for(ShowVisualArrayCheckBox checkBox : controlPanel
-				.getCheckBoxMap().values())
-		{
-			if(!checkBox.isSelected())
-			{
+		for (ShowVisualArrayCheckBox checkBox : controlPanel.getCheckBoxMap()
+				.values()) {
+			if (!checkBox.isSelected()) {
 				shouldBeSelected = false;
 			}
 		}
@@ -36,27 +31,22 @@ public class ShowAllCheckBox extends JCheckBox implements ActionListener
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if(isSelected())
-		{
-			for(Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
-					.getCheckBoxMap().entrySet())
-			{
+	public void actionPerformed(ActionEvent e) {
+		if (isSelected()) {
+			for (Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
+					.getCheckBoxMap().entrySet()) {
 				controlPanel.showVisualArray(entry.getKey());
 				entry.getValue().setSelected(true);
 			}
-		}
-		else
-		{
-			for(Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
-					.getCheckBoxMap().entrySet())
-			{
+		} else {
+			for (Map.Entry<VisualArray, ShowVisualArrayCheckBox> entry : controlPanel
+					.getCheckBoxMap().entrySet()) {
 				controlPanel.hideVisualArray(entry.getKey());
 				entry.getValue().setSelected(false);
 			}
 		}
-		controlPanel.log(this, e.getActionCommand() + (isSelected() ? " selected" : " deselected"));
+		controlPanel.log(this, e.getActionCommand()
+				+ (isSelected() ? " selected" : " deselected"));
 	}
 
 	private static final long serialVersionUID = 866229596665325648L;
